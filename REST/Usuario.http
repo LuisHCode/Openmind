@@ -1,0 +1,28 @@
+
+@uriUsuario = http://localhost:8000/api/usuario
+
+POST {{uriUsuario}}
+Content-Type: application/json
+
+{
+  "nombre": "Camila Zuñiga",
+  "email": "camiis@gmail.com",
+  "password": "1234"
+}
+
+###
+
+GET {{uriUsuario}}/3
+
+###
+PUT {{uriUsuario}}/2
+Content-Type: application/json
+
+{
+  "nombre": "Camila Segura",
+  "email": null
+}
+
+###
+
+DELETE {{uriUsuario}}/2
