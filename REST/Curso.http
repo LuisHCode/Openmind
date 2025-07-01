@@ -1,0 +1,33 @@
+
+@uriCurso = http://localhost:8000/api/curso
+
+POST {{uriCurso}}
+Content-Type: application/json
+
+{
+    "titulo": "Curso básico de Excel",
+    "descripcion": "En este curso vamos a aprender Excel básico, como funciona, sus fundamentos y demás",
+    "creador_id": "1",
+    "fecha_inicio": "2025-07-02",
+    "cupo": null
+}
+
+###
+
+GET {{uriCurso}}/1
+
+###
+PUT {{uriCurso}}/0
+Content-Type: application/json
+
+{
+    "titulo": null,
+    "descripcion": null,
+    "creador_id": null,
+    "fecha_inicio": "2025-09-02",
+    "cupo": null
+}
+
+###
+
+DELETE {{uriCurso}}/1

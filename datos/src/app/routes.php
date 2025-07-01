@@ -18,4 +18,12 @@ $app->group('/api', function (RouteCollectorProxy $api) {
         $endpoint->delete('/{idUsuario}', Usuario::class . ':delete');
 
     });
+
+    $api->group('/curso', function (RouteCollectorProxy $endpoint) {
+        $endpoint->post('', Curso::class . ':create');
+        $endpoint->put('/{idCurso}', Curso::class . ':update');
+        $endpoint->get('/{idCurso}', Curso::class . ':read');
+        $endpoint->delete('/{idCurso}', Curso::class . ':delete');
+
+    });
 });

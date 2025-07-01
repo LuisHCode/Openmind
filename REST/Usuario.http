@@ -12,10 +12,10 @@ Content-Type: application/json
 
 ###
 
-GET {{uriUsuario}}/3
+GET {{uriUsuario}}/1
 
 ###
-PUT {{uriUsuario}}/2
+PUT {{uriUsuario}}/1
 Content-Type: application/json
 
 {
