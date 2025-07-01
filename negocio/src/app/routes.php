@@ -29,7 +29,7 @@ $app->group('/api', function (RouteCollectorProxy $api) {
     $api->group('/matricula', function (RouteCollectorProxy $endpoint) {
         $endpoint->post('/{idCurso}', Matricula::class . ':create');
         $endpoint->put('/{idMatricula}', Matricula::class . ':update');
-        $endpoint->get('', Matricula::class . ':read');
+        $endpoint->get('', Matricula::class . ':filtrar');
         $endpoint->delete('/{idMatricula}', Matricula::class . ':delete');
     });
 });
