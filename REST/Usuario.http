@@ -5,14 +5,14 @@ POST {{uriUsuario}}
 Content-Type: application/json
 
 {
-  "nombre": "Camila Zuñiga",
-  "email": "camiis@gmail.com",
+  "nombre": "Camila Segura",
+  "email": "camii@gmail.com",
   "password": "1234"
 }
 
 ###
 
-GET {{uriUsuario}}/1
+GET {{uriUsuario}}/2
 
 ###
 PUT {{uriUsuario}}/1

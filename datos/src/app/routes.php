@@ -24,6 +24,12 @@ $app->group('/api', function (RouteCollectorProxy $api) {
         $endpoint->put('/{idCurso}', Curso::class . ':update');
         $endpoint->get('/{idCurso}', Curso::class . ':read');
         $endpoint->delete('/{idCurso}', Curso::class . ':delete');
+    });
 
+    $api->group('/matricula', function (RouteCollectorProxy $endpoint) {
+        $endpoint->post('/{idCurso}', Matricula::class . ':create');
+        $endpoint->put('/{idMatricula}', Matricula::class . ':update');
+        $endpoint->get('', Matricula::class . ':read');
+        $endpoint->delete('/{idMatricula}', Matricula::class . ':delete');
     });
 });

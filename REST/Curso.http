@@ -5,27 +5,27 @@ POST {{uriCurso}}
 Content-Type: application/json
 
 {
-    "titulo": "Curso básico de Excel",
-    "descripcion": "En este curso vamos a aprender Excel básico, como funciona, sus fundamentos y demás",
-    "creador_id": "1",
+    "titulo": "Curso de creación de cursos",
+    "descripcion": "Acá aprenderemos a crear cursos",
+    "creador_id": "2",
     "fecha_inicio": "2025-07-02",
-    "cupo": null
+    "cupo": 0
 }
 
 ###
 
-GET {{uriCurso}}/1
+GET {{uriCurso}}/2
 
 ###
-PUT {{uriCurso}}/0
+PUT {{uriCurso}}/2
 Content-Type: application/json
 
 {
     "titulo": null,
     "descripcion": null,
     "creador_id": null,
-    "fecha_inicio": "2025-09-02",
-    "cupo": null
+    "fecha_inicio": null,
+    "cupo": 1
 }
 
 ###

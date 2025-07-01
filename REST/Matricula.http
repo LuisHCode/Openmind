@@ -1,0 +1,33 @@
+
+@uriMatricula = http://localhost:8000/api/matricula
+
+POST {{uriMatricula}}/1
+Content-Type: application/json
+
+{
+    "idUsuario": "1"
+}
+
+###
+
+GET {{uriMatricula}}
+Content-Type: application/json
+
+{
+    "idUsuario": null,
+    "idCurso": 1
+}
+
+###
+PUT {{uriMatricula}}/1
+Content-Type: application/json
+
+{
+    "idUsuario": null,
+    "idCurso": 2,
+    "fecha_matricula": null
+}
+
+###
+
+DELETE {{uriMatricula}}/1
