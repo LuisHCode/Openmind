@@ -1,5 +1,5 @@
 
-@uriMatricula = http://localhost:8000/api/matricula
+@uriMatricula = http://localhost:9000/api/matricula
 
 POST {{uriMatricula}}/1
 Content-Type: application/json
@@ -10,13 +10,8 @@ Content-Type: application/json
 
 ###
 
-GET {{uriMatricula}}
-Content-Type: application/json
+GET  {{uriMatricula}}?idCurso=1
 
-{
-    "idUsuario": null,
-    "idCurso": 1
-}
 
 ###
 PUT {{uriMatricula}}/1

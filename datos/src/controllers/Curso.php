@@ -21,22 +21,30 @@ class Curso
         $descripcion = $data['descripcion'];
         $creador_id = $data['creador_id'];
         $fecha_inicio = $data['fecha_inicio'];
+        $semanas_duracion = $data['semanas_duracion'];
+        $categoria = $data['categoria'];
+        $nivel = $data['nivel'];
         $cupo = $data['cupo'];
 
         if ($cupo === null || $cupo === '') {
             $cupo = 30;
         }
+        if ($semanas_duracion === null || $semanas_duracion === '') {
+            $semanas_duracion = 8;
+        }
 
-        $sql = "SELECT fn_create_curso(:titulo, :descripcion, :creador_id, :fecha_inicio, :cupo) AS resultado";
+        $sql = "SELECT fn_create_curso(:titulo, :descripcion, :creador_id, :fecha_inicio, :semanas_duracion, :categoria, :nivel, :cupo) AS resultado";
 
-        $pdo = $this->container->get('OMbase_datos'); // Usando tu contenedor
-
+        $pdo = $this->container->get('OMbase_datos');
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'titulo' => $titulo,
             'descripcion' => $descripcion,
             'creador_id' => $creador_id,
             'fecha_inicio' => $fecha_inicio,
+            'semanas_duracion' => $semanas_duracion,
+            'categoria' => $categoria,
+            'nivel' => $nivel,
             'cupo' => $cupo,
         ]);
 
@@ -74,21 +82,24 @@ class Curso
         $data = json_decode($request->getBody(), true);
         $titulo = $data['titulo'] ?? null;
         $descripcion = $data['descripcion'] ?? null;
-        $creador_id = $data['creador_id'] ?? null;
         $fecha_inicio = $data['fecha_inicio'] ?? null;
+        $semanas_duracion = $data['semanas_duracion'] ?? null;
+        $categoria = $data['categoria'] ?? null;
+        $nivel = $data['nivel'] ?? null;
         $cupo = $data['cupo'] ?? null;
 
-        $sql = "SELECT fn_update_curso(:id, :titulo, :descripcion, :creador_id, :fecha_inicio, :cupo) AS resultado";
+        $sql = "SELECT fn_update_curso(:id, :titulo, :descripcion, :fecha_inicio, :semanas_duracion, :categoria, :nivel, :cupo) AS resultado";
 
-        $pdo = $this->container->get('OMbase_datos'); // Usando tu contenedor
-
+        $pdo = $this->container->get('OMbase_datos');
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'id' => $idCurso,
             'titulo' => $titulo,
             'descripcion' => $descripcion,
-            'creador_id' => $creador_id,
             'fecha_inicio' => $fecha_inicio,
+            'semanas_duracion' => $semanas_duracion,
+            'categoria' => $categoria,
+            'nivel' => $nivel,
             'cupo' => $cupo,
         ]);
 

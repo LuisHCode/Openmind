@@ -1,5 +1,5 @@
 
-@uriCurso = http://localhost:8000/api/curso
+@uriCurso = http://localhost:9000/api/curso
 
 POST {{uriCurso}}
 Content-Type: application/json
@@ -7,25 +7,31 @@ Content-Type: application/json
 {
     "titulo": "Curso de creación de cursos",
     "descripcion": "Acá aprenderemos a crear cursos",
-    "creador_id": "2",
+    "creador_id": 2,
     "fecha_inicio": "2025-07-02",
-    "cupo": 0
+    "semanas_duracion": 8,
+    "categoria": "Backend",
+    "nivel": "Intermedio",
+    "cupo": 20
 }
 
 ###
 
-GET {{uriCurso}}/2
+GET {{uriCurso}}/1
 
 ###
 PUT {{uriCurso}}/2
 Content-Type: application/json
 
 {
-    "titulo": null,
-    "descripcion": null,
-    "creador_id": null,
-    "fecha_inicio": null,
-    "cupo": 1
+    "titulo": "Curso de creación de cursos",
+    "descripcion": "Acá aprenderemos a crear cursos",
+    "creador_id": 2,
+    "fecha_inicio": "2025-07-02",
+    "semanas_duracion": 8,
+    "categoria": "Backend",
+    "nivel": "Intermedio",
+    "cupo": 20
 }
 
 ###

@@ -17,7 +17,9 @@ CREATE TABLE cursos (
     descripcion VARCHAR(500),
     creador_id INT NOT NULL,
     fecha_inicio DATE NOT NULL,
-    fecha_fin DATE NOT NULL,
+    semanas_duracion INT NOT NULL DEFAULT 8,
+    categoria ENUM('Backend', 'Frontend', 'Desarrollo Web', 'DevOps', 'Data Science', 'IA', 'Móvil', 'Fullstack') NOT NULL,
+    nivel ENUM('Principiante', 'Intermedio', 'Avanzado') NOT NULL,
     cupo INT NOT NULL DEFAULT 30,
     FOREIGN KEY (creador_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
@@ -49,8 +51,8 @@ END $$
 
 CREATE PROCEDURE sp_get_curso(IN c_id INT)
 BEGIN
-    IF EXISTS (SELECT id FROM usuarios WHERE id = c_id) THEN
-        SELECT c.id, c.titulo, c.descripcion, u.nombre, fecha_inicio, fecha_fin, cupo
+    IF EXISTS (SELECT id FROM cursos WHERE id = c_id) THEN
+        SELECT c.id, c.titulo, c.descripcion, u.nombre, c.fecha_inicio, c.semanas_duracion, c.categoria, c.nivel, c.cupo
         FROM cursos c
         JOIN usuarios u ON c.creador_id = u.id
         WHERE c.id = c_id;
@@ -172,7 +174,9 @@ CREATE FUNCTION fn_update_curso(
     p_titulo VARCHAR(150),
     p_descripcion TEXT,
     p_fecha_inicio DATE,
-    p_fecha_fin DATE,
+    p_semanas_duracion INT,
+    p_categoria VARCHAR(30),
+    p_nivel VARCHAR(20),
     p_cupo INT
 )
 RETURNS INT
@@ -194,7 +198,18 @@ BEGIN
 
         IF p_fecha_inicio IS NOT NULL THEN
             UPDATE cursos SET fecha_inicio = p_fecha_inicio WHERE id = p_id;
-            UPDATE cursos SET fecha_final = DATE_ADD(p_fecha_inicio, INTERVAL 2 MONTH) WHERE id = p_id;
+        END IF;
+
+        IF p_semanas_duracion IS NOT NULL THEN
+            UPDATE cursos SET semanas_duracion = p_semanas_duracion WHERE id = p_id;
+        END IF;
+
+        IF p_categoria IS NOT NULL THEN
+            UPDATE cursos SET categoria = p_categoria WHERE id = p_id;
+        END IF;
+
+        IF p_nivel IS NOT NULL THEN
+            UPDATE cursos SET nivel = p_nivel WHERE id = p_id;
         END IF;
 
         IF p_cupo IS NOT NULL THEN
@@ -225,6 +240,9 @@ CREATE FUNCTION fn_create_curso(
     p_descripcion VARCHAR(500),
     p_creador_id INT,
     p_fecha_inicio DATE,
+    p_semanas_duracion INT,
+    p_categoria VARCHAR(30),
+    p_nivel VARCHAR(20),
     p_cupo INT
 )
 RETURNS INT
@@ -232,13 +250,10 @@ NOT DETERMINISTIC
 MODIFIES SQL DATA
 BEGIN
     DECLARE valido INT DEFAULT 0;
-    DECLARE fecha_final DATE;
 
     IF EXISTS (SELECT id FROM usuarios WHERE id = p_creador_id) THEN
-        SET fecha_final = DATE_ADD(p_fecha_inicio, INTERVAL 2 MONTH);
-
-        INSERT INTO cursos(titulo, descripcion, creador_id, fecha_inicio, fecha_fin, cupo)
-        VALUES (p_titulo, p_descripcion, p_creador_id, p_fecha_inicio, fecha_final, p_cupo);
+        INSERT INTO cursos(titulo, descripcion, creador_id, fecha_inicio, semanas_duracion, categoria, nivel, cupo)
+        VALUES (p_titulo, p_descripcion, p_creador_id, p_fecha_inicio, p_semanas_duracion, p_categoria, p_nivel, p_cupo);
     ELSE
         SET valido = 1;
     END IF;

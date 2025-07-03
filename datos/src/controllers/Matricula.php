@@ -48,12 +48,18 @@ class Matricula
 
     public function read(Request $request, Response $response, $args)
     {
-        $sql = "CALL sp_get_matricula(:idUsuario, :idCurso)";
+        if ($request->getMethod() === 'GET') {
+            $params = $request->getQueryParams();
+            $idUsuario = $params['idUsuario'] ?? null;
+            $idCurso = $params['idCurso'] ?? null;
+        } else {
+            $data = json_decode($request->getBody(), true);
+            $idUsuario = $data['idUsuario'] ?? null;
+            $idCurso = $data['idCurso'] ?? null;
+        }
 
+        $sql = "CALL sp_get_matricula(:idUsuario, :idCurso)";
         $pdo = $this->container->get('OMbase_datos');
-        $data = json_decode($request->getBody(), true);
-        $idUsuario = $data['idUsuario'];
-        $idCurso = $data['idCurso'];
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             'idUsuario' => $idUsuario,
@@ -131,12 +137,10 @@ class Matricula
         return $this->respondWithJson($response, ['error' => 'Error desconocido'], 500);
     }
 
-
+    // Reemplaza todos los usos de withJson por la función respondWithJson
     private function respondWithJson(Response $response, array $data, int $status = 200): Response
     {
         $response->getBody()->write(json_encode($data));
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus($status);
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 }
