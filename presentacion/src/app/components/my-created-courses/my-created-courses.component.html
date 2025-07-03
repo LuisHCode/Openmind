@@ -1,0 +1,145 @@
+<div class="page-container">
+  <div class="header-section">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <mat-icon>library_books</mat-icon>
+          Mis Cursos Creados
+        </h1>
+        <p class="page-subtitle">
+          Gestiona los cursos que has creado y revisa sus métricas
+        </p>
+      </div>
+      <button
+        mat-raised-button
+        color="primary"
+        routerLink="/create-course"
+        class="create-button">
+        <mat-icon>add</mat-icon>
+        Crear Nuevo Curso
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="courses-section"
+    *ngIf="createdCourses$ | async as courses; else empty">
+    <div class="courses-grid">
+      <div
+        class="course-card mat-elevation-z2"
+        *ngFor="let course of courses; trackBy: trackByCourseId">
+        <div class="course-image">
+          <img [src]="course.imageUrl" [alt]="course.title" />
+          <div class="course-level-badge" [class]="course.level.toLowerCase()">
+            {{ course.level }}
+          </div>
+          <button
+            mat-icon-button
+            class="course-menu-button"
+            [matMenuTriggerFor]="courseMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #courseMenu="matMenu">
+            <button mat-menu-item (click)="viewCourseDetails(course.id)">
+              <mat-icon>visibility</mat-icon>
+              <span>Ver Detalles</span>
+            </button>
+            <button mat-menu-item>
+              <mat-icon>edit</mat-icon>
+              <span>Editar Curso</span>
+            </button>
+            <button mat-menu-item>
+              <mat-icon>bar_chart</mat-icon>
+              <span>Ver Métricas</span>
+            </button>
+          </mat-menu>
+        </div>
+
+        <div class="course-content">
+          <div class="course-header">
+            <h3 class="course-title">{{ course.title }}</h3>
+            <div class="course-status">
+              <mat-chip-set>
+                <mat-chip class="status-chip published">Publicado</mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+
+          <p class="course-description">{{ course.description }}</p>
+
+          <div class="course-stats">
+            <div class="stat-item">
+              <mat-icon>group</mat-icon>
+              <div class="stat-content">
+                <span class="stat-value">{{ course.studentsCount }}</span>
+                <span class="stat-label">Estudiantes</span>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <mat-icon>star</mat-icon>
+              <div class="stat-content">
+                <span class="stat-value">{{ course.rating || "N/A" }}</span>
+                <span class="stat-label">Rating</span>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <mat-icon>monetization_on</mat-icon>
+              <div class="stat-content">
+                <span class="stat-value">\${{ course.price }}</span>
+                <span class="stat-label">Precio</span>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <mat-icon>schedule</mat-icon>
+              <div class="stat-content">
+                <span class="stat-value">{{ course.duration }}</span>
+                <span class="stat-label">Duración</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-meta">
+            <div class="meta-info">
+              <mat-icon>category</mat-icon>
+              <span>{{ course.category }}</span>
+            </div>
+            <div class="meta-info">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ formatDate(course.createdAt) }}</span>
+            </div>
+          </div>
+
+          <div class="course-actions">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="viewCourseDetails(course.id)">
+              <mat-icon>visibility</mat-icon>
+              Ver Estudiantes
+            </button>
+            <button mat-button class="edit-button">
+              <mat-icon>edit</mat-icon>
+              Editar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #empty>
+    <div class="empty-state">
+      <mat-icon>library_add</mat-icon>
+      <h3>No has creado ningún curso</h3>
+      <p>Comienza a compartir tu conocimiento creando tu primer curso</p>
+      <button mat-raised-button color="primary" routerLink="/create-course">
+        <mat-icon>add_circle</mat-icon>
+        Crear Mi Primer Curso
+      </button>
+    </div>
+  </ng-template>
+</div>

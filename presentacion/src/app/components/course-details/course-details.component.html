@@ -1,0 +1,239 @@
+<div class="page-container" *ngIf="course$ | async as course">
+  <!-- Header Section -->
+  <div class="course-header">
+    <button mat-icon-button class="back-button" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <div class="header-content">
+      <div class="course-info">
+        <div class="course-image">
+          <img [src]="course.imageUrl" [alt]="course.title" />
+          <div class="level-badge" [class]="course.level.toLowerCase()">
+            {{ course.level }}
+          </div>
+        </div>
+
+        <div class="course-details">
+          <h1 class="course-title">{{ course.title }}</h1>
+          <p class="course-instructor">
+            <mat-icon>person</mat-icon>
+            {{ course.instructor }}
+          </p>
+          <p class="course-description">{{ course.description }}</p>
+
+          <div class="course-meta">
+            <mat-chip-set>
+              <mat-chip class="category-chip">{{ course.category }}</mat-chip>
+            </mat-chip-set>
+
+            <div class="meta-items">
+              <div class="meta-item">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ course.duration }}</span>
+              </div>
+              <div class="meta-item">
+                <mat-icon>star</mat-icon>
+                <span>{{ course.rating || "N/A" }}</span>
+              </div>
+              <div class="meta-item">
+                <mat-icon>monetization_on</mat-icon>
+                <span>\${{ course.price }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-summary">
+        <div class="stat-card">
+          <mat-icon>group</mat-icon>
+          <div class="stat-content">
+            <span class="stat-number">{{ course.studentsCount }}</span>
+            <span class="stat-label">Estudiantes</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <mat-icon>calendar_today</mat-icon>
+          <div class="stat-content">
+            <span class="stat-number">{{ formatDate(course.createdAt) }}</span>
+            <span class="stat-label">Creado</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Section -->
+  <mat-tab-group class="details-tabs" animationDuration="300ms">
+    <mat-tab label="Estudiantes Matriculados">
+      <div class="tab-content">
+        <div class="students-section" *ngIf="students$ | async as students">
+          <div class="section-header">
+            <h3>
+              <mat-icon>group</mat-icon>
+              Lista de Estudiantes ({{ students.length }})
+            </h3>
+            <button mat-raised-button color="primary">
+              <mat-icon>file_download</mat-icon>
+              Exportar Lista
+            </button>
+          </div>
+
+          <div
+            class="students-table-container"
+            *ngIf="students.length > 0; else noStudents">
+            <table
+              mat-table
+              [dataSource]="students"
+              class="students-table mat-elevation-z1">
+              <ng-container matColumnDef="avatar">
+                <th mat-header-cell *matHeaderCellDef>Avatar</th>
+                <td mat-cell *matCellDef="let student">
+                  <img
+                    [src]="student.avatar"
+                    [alt]="student.name"
+                    class="student-avatar" />
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                <td mat-cell *matCellDef="let student">
+                  <div class="student-name">
+                    <span class="name">{{ student.name }}</span>
+                    <span class="email">{{ student.email }}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="enrolledAt">
+                <th mat-header-cell *matHeaderCellDef>
+                  Fecha de Matriculación
+                </th>
+                <td mat-cell *matCellDef="let student">
+                  {{ formatDate(student.enrolledAt!) }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="progress">
+                <th mat-header-cell *matHeaderCellDef>Progreso</th>
+                <td mat-cell *matCellDef="let student">
+                  <div class="progress-cell">
+                    <div class="progress-bar">
+                      <div
+                        class="progress-fill"
+                        [style.width.%]="getRandomProgress()"></div>
+                    </div>
+                    <span class="progress-text"
+                      >{{ getRandomProgress() }}%</span
+                    >
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Estado</th>
+                <td mat-cell *matCellDef="let student">
+                  <mat-chip-set>
+                    <mat-chip class="status-chip active">Activo</mat-chip>
+                  </mat-chip-set>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                <td mat-cell *matCellDef="let student">
+                  <button
+                    mat-icon-button
+                    [matMenuTriggerFor]="studentMenu"
+                    aria-label="Más opciones">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+
+                  <mat-menu #studentMenu="matMenu">
+                    <button mat-menu-item>
+                      <mat-icon>email</mat-icon>
+                      <span>Enviar Mensaje</span>
+                    </button>
+                    <button mat-menu-item>
+                      <mat-icon>assessment</mat-icon>
+                      <span>Ver Progreso</span>
+                    </button>
+                    <button mat-menu-item>
+                      <mat-icon>block</mat-icon>
+                      <span>Suspender</span>
+                    </button>
+                  </mat-menu>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
+
+          <ng-template #noStudents>
+            <div class="empty-state">
+              <mat-icon>group_off</mat-icon>
+              <h3>No hay estudiantes matriculados</h3>
+              <p>Aún no tienes estudiantes en este curso</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Métricas del Curso">
+      <div class="tab-content">
+        <div class="metrics-section">
+          <h3>
+            <mat-icon>bar_chart</mat-icon>
+            Métricas y Estadísticas
+          </h3>
+
+          <div class="metrics-grid">
+            <div class="metric-card mat-elevation-z1">
+              <mat-icon class="metric-icon revenue">monetization_on</mat-icon>
+              <div class="metric-content">
+                <span class="metric-value"
+                  >\${{ course.price * course.studentsCount | number }}</span
+                >
+                <span class="metric-label">Ingresos Totales</span>
+              </div>
+            </div>
+
+            <div class="metric-card mat-elevation-z1">
+              <mat-icon class="metric-icon completion">check_circle</mat-icon>
+              <div class="metric-content">
+                <span class="metric-value">{{
+                  Math.floor(course.studentsCount * 0.7)
+                }}</span>
+                <span class="metric-label">Completaron</span>
+              </div>
+            </div>
+
+            <div class="metric-card mat-elevation-z1">
+              <mat-icon class="metric-icon rating">star</mat-icon>
+              <div class="metric-content">
+                <span class="metric-value">{{ course.rating || "N/A" }}</span>
+                <span class="metric-label">Rating Promedio</span>
+              </div>
+            </div>
+
+            <div class="metric-card mat-elevation-z1">
+              <mat-icon class="metric-icon growth">trending_up</mat-icon>
+              <div class="metric-content">
+                <span class="metric-value"
+                  >+{{ Math.floor(Math.random() * 20 + 5) }}%</span
+                >
+                <span class="metric-label">Crecimiento</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

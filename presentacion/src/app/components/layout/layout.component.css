@@ -1,0 +1,142 @@
+    .main-toolbar {
+      background: white;
+      color: var(--text-primary);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .toolbar-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .logo-section:hover {
+      transform: scale(1.05);
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      color: var(--primary-purple);
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-section {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .nav-button:hover {
+      background-color: #F3F4F6;
+      color: var(--primary-purple);
+    }
+
+    .nav-button.active {
+      background-color: var(--primary-purple);
+      color: white;
+    }
+
+    .nav-button mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .user-section {
+      display: flex;
+      align-items: center;
+    }
+
+    .user-button {
+      padding: 4px;
+    }
+
+    .user-avatar, .menu-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .menu-avatar {
+      width: 48px;
+      height: 48px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      min-width: 250px;
+    }
+
+    .user-details {
+      flex: 1;
+    }
+
+    .user-name {
+      font-weight: 600;
+      margin: 0;
+      color: var(--text-primary);
+    }
+
+    .user-email {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin: 4px 0 0 0;
+    }
+
+    .main-content {
+      min-height: calc(100vh - 64px);
+      background-color: var(--background);
+    }
+
+    @media (max-width: 768px) {
+      .toolbar-content {
+        padding: 0 16px;
+      }
+      
+      .nav-section {
+        display: none;
+      }
+      
+      .logo-text {
+        display: none;
+      }
+    }

@@ -1,0 +1,96 @@
+<div class="page-container">
+  <div class="header-section">
+    <h1 class="page-title">
+      <mat-icon>book</mat-icon>
+      Mis Cursos Matriculados
+    </h1>
+    <p class="page-subtitle">
+      Continúa tu aprendizaje con los cursos en los que te has matriculado
+    </p>
+  </div>
+
+  <div
+    class="courses-section"
+    *ngIf="enrolledCourses$ | async as courses; else empty">
+    <div class="courses-grid">
+      <div
+        class="course-card mat-elevation-z2"
+        *ngFor="let course of courses; trackBy: trackByCourseId">
+        <div class="course-image">
+          <img [src]="course.imageUrl" [alt]="course.title" />
+          <div class="progress-overlay">
+            <div class="progress-circle">
+              <span class="progress-text">{{ course.progress }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="course-content">
+          <div class="course-header">
+            <h3 class="course-title">{{ course.title }}</h3>
+            <mat-chip-set>
+              <mat-chip class="status-chip enrolled">Matriculado</mat-chip>
+            </mat-chip-set>
+          </div>
+
+          <p class="course-instructor">
+            <mat-icon>person</mat-icon>
+            {{ course.instructor }}
+          </p>
+
+          <p class="course-description">{{ course.description }}</p>
+
+          <div class="progress-section">
+            <div class="progress-header">
+              <span>Progreso del curso</span>
+              <span class="progress-percent">{{ course.progress }}%</span>
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="course.progress"
+              class="course-progress">
+            </mat-progress-bar>
+          </div>
+
+          <div class="course-meta">
+            <div class="meta-item">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ course.duration }}</span>
+            </div>
+            <div class="meta-item">
+              <mat-icon>star</mat-icon>
+              <span>{{ course.rating }}</span>
+            </div>
+            <div class="meta-item">
+              <mat-icon>school</mat-icon>
+              <span>{{ course.level }}</span>
+            </div>
+          </div>
+
+          <div class="course-actions">
+            <button mat-raised-button color="primary" class="continue-button">
+              <mat-icon>play_arrow</mat-icon>
+              Continuar Curso
+            </button>
+            <button mat-button class="view-details-button">
+              <mat-icon>info</mat-icon>
+              Ver Detalles
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #empty>
+    <div class="empty-state">
+      <mat-icon>book_online</mat-icon>
+      <h3>No tienes cursos matriculados</h3>
+      <p>Explora nuestro catálogo y encuentra cursos que te interesen</p>
+      <button mat-raised-button color="primary" routerLink="/dashboard">
+        <mat-icon>explore</mat-icon>
+        Explorar Cursos
+      </button>
+    </div>
+  </ng-template>
+</div>

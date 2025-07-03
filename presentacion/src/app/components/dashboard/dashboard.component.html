@@ -1,0 +1,183 @@
+<div class="page-container">
+  <!-- Stats Section -->
+  <div class="stats-section" *ngIf="stats$ | async as stats">
+    <div class="stats-grid">
+      <div class="stats-card mat-elevation-z1">
+        <mat-icon class="stats-icon">library_books</mat-icon>
+        <div class="stats-content">
+          <h3>{{ stats.totalCourses }}</h3>
+          <p>Cursos Disponibles</p>
+        </div>
+      </div>
+
+      <div class="stats-card mat-elevation-z1">
+        <mat-icon class="stats-icon enrolled">book</mat-icon>
+        <div class="stats-content">
+          <h3>{{ stats.enrolledCourses }}</h3>
+          <p>Cursos Matriculados</p>
+        </div>
+      </div>
+
+      <div class="stats-card mat-elevation-z1">
+        <mat-icon class="stats-icon created">create</mat-icon>
+        <div class="stats-content">
+          <h3>{{ stats.createdCourses }}</h3>
+          <p>Cursos Creados</p>
+        </div>
+      </div>
+
+      <div class="stats-card mat-elevation-z1">
+        <mat-icon class="stats-icon completed">check_circle</mat-icon>
+        <div class="stats-content">
+          <h3>{{ stats.completedCourses }}</h3>
+          <p>Cursos Completados</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="search-container mat-elevation-z1">
+    <div class="search-controls">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar cursos</mat-label>
+        <input
+          matInput
+          [formControl]="searchControl"
+          placeholder="Buscar por título, instructor o categoría..." />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Categoría</mat-label>
+        <mat-select [formControl]="categoryControl">
+          <mat-option value="">Todas las categorías</mat-option>
+          <mat-option value="Desarrollo Web">Desarrollo Web</mat-option>
+          <mat-option value="Data Science">Data Science</mat-option>
+          <mat-option value="Diseño">Diseño</mat-option>
+          <mat-option value="Programación">Programación</mat-option>
+          <mat-option value="Marketing">Marketing</mat-option>
+          <mat-option value="Desarrollo Mobile">Desarrollo Mobile</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Nivel</mat-label>
+        <mat-select [formControl]="levelControl">
+          <mat-option value="">Todos los niveles</mat-option>
+          <mat-option value="Principiante">Principiante</mat-option>
+          <mat-option value="Intermedio">Intermedio</mat-option>
+          <mat-option value="Avanzado">Avanzado</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Courses Grid -->
+  <div class="courses-section">
+    <h2 class="section-title">
+      <mat-icon>school</mat-icon>
+      Todos los Cursos
+    </h2>
+
+    <div
+      class="courses-grid"
+      *ngIf="filteredCourses$ | async as courses; else loading">
+      <div
+        class="course-card mat-elevation-z1"
+        *ngFor="let course of courses; trackBy: trackByCourseId">
+        <div class="course-image">
+          <img [src]="course.imageUrl" [alt]="course.title" />
+          <div class="course-level-badge" [class]="course.level.toLowerCase()">
+            {{ course.level }}
+          </div>
+          <div class="enrollment-status" *ngIf="course.isEnrolled">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+        </div>
+
+        <div class="course-content">
+          <div class="course-header">
+            <h3 class="course-title">{{ course.title }}</h3>
+            <div class="course-rating">
+              <mat-icon class="star-icon">star</mat-icon>
+              <span>{{ course.rating }}</span>
+            </div>
+          </div>
+
+          <p class="course-description">{{ course.description }}</p>
+
+          <div class="course-meta">
+            <div class="meta-item">
+              <mat-icon>person</mat-icon>
+              <span>{{ course.instructor }}</span>
+            </div>
+            <div class="meta-item">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ course.duration }}</span>
+            </div>
+            <div class="meta-item">
+              <mat-icon>group</mat-icon>
+              <span>{{ course.studentsCount }} estudiantes</span>
+            </div>
+          </div>
+
+          <div class="course-footer">
+            <div class="course-price">
+              <span class="price">$ {{ course.price }}</span>
+            </div>
+            <button
+              mat-raised-button
+              [color]="course.isEnrolled ? 'accent' : 'primary'"
+              class="enroll-button"
+              [disabled]="isEnrolling || course.isEnrolled"
+              (click)="enrollInCourse(course.id)">
+              <mat-spinner
+                diameter="16"
+                *ngIf="
+                  isEnrolling && enrollingCourseId === course.id
+                "></mat-spinner>
+              <mat-icon
+                *ngIf="
+                  course.isEnrolled &&
+                  (!isEnrolling || enrollingCourseId !== course.id)
+                "
+                >check</mat-icon
+              >
+              <span
+                *ngIf="
+                  course.isEnrolled &&
+                  (!isEnrolling || enrollingCourseId !== course.id)
+                "
+                >Matriculado</span
+              >
+              <span
+                *ngIf="
+                  !course.isEnrolled &&
+                  (!isEnrolling || enrollingCourseId !== course.id)
+                "
+                >Matricularse</span
+              >
+              <span *ngIf="isEnrolling && enrollingCourseId === course.id"
+                >Matriculando...</span
+              >
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #loading>
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Cargando cursos...</p>
+      </div>
+    </ng-template>
+
+    <div class="empty-state" *ngIf="(filteredCourses$ | async)?.length === 0">
+      <mat-icon>search_off</mat-icon>
+      <h3>No se encontraron cursos</h3>
+      <p>Intenta cambiar los filtros de búsqueda</p>
+    </div>
+  </div>
+</div>
