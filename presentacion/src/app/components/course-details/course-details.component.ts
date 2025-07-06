@@ -35,8 +35,6 @@ export class CourseDetailsComponent implements OnInit {
     "avatar",
     "name",
     "enrolledAt",
-    "progress",
-    "status",
     "actions",
   ];
   Math = Math;

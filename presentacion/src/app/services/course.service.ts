@@ -30,7 +30,6 @@ export class CourseService {
         level: 'Intermedio',
         category: 'Desarrollo Web',
         price: 299,
-        rating: 4.8,
         studentsCount: 1250,
         imageUrl: 'https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
         createdAt: new Date('2024-01-15')
@@ -44,7 +43,6 @@ export class CourseService {
         level: 'Avanzado',
         category: 'Data Science',
         price: 399,
-        rating: 4.9,
         studentsCount: 890,
         imageUrl: 'https://images.pexels.com/photos/574070/pexels-photo-574070.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
         createdAt: new Date('2024-02-01')
@@ -58,7 +56,6 @@ export class CourseService {
         level: 'Principiante',
         category: 'Diseño',
         price: 249,
-        rating: 4.7,
         studentsCount: 2100,
         imageUrl: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
         createdAt: new Date('2024-01-20')
@@ -72,7 +69,6 @@ export class CourseService {
         level: 'Avanzado',
         category: 'Programación',
         price: 349,
-        rating: 4.6,
         studentsCount: 760,
         imageUrl: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
         createdAt: new Date('2024-02-10')
@@ -86,7 +82,6 @@ export class CourseService {
         level: 'Intermedio',
         category: 'Marketing',
         price: 199,
-        rating: 4.5,
         studentsCount: 1500,
         imageUrl: 'https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
         createdAt: new Date('2024-01-25')
@@ -100,7 +95,6 @@ export class CourseService {
         level: 'Intermedio',
         category: 'Desarrollo Mobile',
         price: 379,
-        rating: 4.8,
         studentsCount: 650,
         imageUrl: 'https://images.pexels.com/photos/147413/twitter-facebook-together-exchange-of-information-147413.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
         createdAt: new Date('2024-02-05')
@@ -117,7 +111,6 @@ export class CourseService {
         level: 'Intermedio',
         category: 'Desarrollo Web',
         price: 199,
-        rating: 4.9,
         studentsCount: 45,
         imageUrl: 'https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
         createdAt: new Date('2024-03-01')
@@ -217,7 +210,6 @@ export class CourseService {
           id: `created-${Date.now()}`,
           createdAt: new Date(),
           studentsCount: 0,
-          rating: 0,
           instructor: 'Usuario Demo'
         };
         

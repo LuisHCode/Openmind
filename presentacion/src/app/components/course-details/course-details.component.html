@@ -33,10 +33,6 @@
                 <span>{{ course.duration }}</span>
               </div>
               <div class="meta-item">
-                <mat-icon>star</mat-icon>
-                <span>{{ course.rating || "N/A" }}</span>
-              </div>
-              <div class="meta-item">
                 <mat-icon>monetization_on</mat-icon>
                 <span>\${{ course.price }}</span>
               </div>
@@ -117,31 +113,6 @@
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="progress">
-                <th mat-header-cell *matHeaderCellDef>Progreso</th>
-                <td mat-cell *matCellDef="let student">
-                  <div class="progress-cell">
-                    <div class="progress-bar">
-                      <div
-                        class="progress-fill"
-                        [style.width.%]="getRandomProgress()"></div>
-                    </div>
-                    <span class="progress-text"
-                      >{{ getRandomProgress() }}%</span
-                    >
-                  </div>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef>Estado</th>
-                <td mat-cell *matCellDef="let student">
-                  <mat-chip-set>
-                    <mat-chip class="status-chip active">Activo</mat-chip>
-                  </mat-chip-set>
-                </td>
-              </ng-container>
-
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Acciones</th>
                 <td mat-cell *matCellDef="let student">
@@ -198,7 +169,7 @@
               <mat-icon class="metric-icon revenue">monetization_on</mat-icon>
               <div class="metric-content">
                 <span class="metric-value"
-                  >\${{ course.price * course.studentsCount | number }}</span
+                  >\${{ course.price * course.studentsCount}}</span
                 >
                 <span class="metric-label">Ingresos Totales</span>
               </div>
@@ -208,27 +179,9 @@
               <mat-icon class="metric-icon completion">check_circle</mat-icon>
               <div class="metric-content">
                 <span class="metric-value">{{
-                  Math.floor(course.studentsCount * 0.7)
+                  Math.floor(course.studentsCount)
                 }}</span>
-                <span class="metric-label">Completaron</span>
-              </div>
-            </div>
-
-            <div class="metric-card mat-elevation-z1">
-              <mat-icon class="metric-icon rating">star</mat-icon>
-              <div class="metric-content">
-                <span class="metric-value">{{ course.rating || "N/A" }}</span>
-                <span class="metric-label">Rating Promedio</span>
-              </div>
-            </div>
-
-            <div class="metric-card mat-elevation-z1">
-              <mat-icon class="metric-icon growth">trending_up</mat-icon>
-              <div class="metric-content">
-                <span class="metric-value"
-                  >+{{ Math.floor(Math.random() * 20 + 5) }}%</span
-                >
-                <span class="metric-label">Crecimiento</span>
+                <span class="metric-label">Matricularon</span>
               </div>
             </div>
           </div>

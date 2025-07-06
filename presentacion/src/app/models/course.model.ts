@@ -7,7 +7,6 @@ export interface Course {
   level: 'Principiante' | 'Intermedio' | 'Avanzado';
   category: string;
   price: number;
-  rating: number;
   studentsCount: number;
   imageUrl: string;
   createdAt: Date;

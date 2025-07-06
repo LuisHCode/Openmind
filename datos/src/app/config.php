@@ -10,3 +10,5 @@ $container->set('config_bd',function(){
     ];
 }
 );
+
+$container->set('key', 'TU_SECRETO_JWT'); 

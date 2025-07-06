@@ -7,7 +7,8 @@ CREATE TABLE usuarios (
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(4096) NOT NULL,
-    fecha_creacion DATE
+    fecha_creacion DATE,
+    tkref VARCHAR(512) DEFAULT NULL
 );
 
 -- Tabla de cursos
@@ -393,8 +394,33 @@ BEGIN
         UPDATE cursos
         SET cupo = cupo - 1
         WHERE id = NEW.curso_id;
+
+        -- Borra la matrícula (el registro que se está actualizando)
+        DELETE FROM matriculas WHERE id = OLD.id;
+        
+           
     END IF;
 END $$
 
+CREATE PROCEDURE sp_verificar_token (
+    IN p_email VARCHAR(100),
+    IN p_tkref VARCHAR(512)
+)
+BEGIN
+    SELECT id FROM usuarios WHERE email = p_email AND tkref = p_tkref;
+END $$
+
+CREATE FUNCTION fn_modificar_token (
+    p_email VARCHAR(100),
+    p_tkref VARCHAR(512)
+) RETURNS INT DETERMINISTIC
+BEGIN
+    DECLARE cnt INT;
+    SELECT COUNT(id) INTO cnt FROM usuarios WHERE email = p_email;
+    IF cnt > 0 THEN
+        UPDATE usuarios SET tkref = p_tkref WHERE email = p_email;
+    END IF;
+    RETURN cnt;
+END $$
 
 DELIMITER ;

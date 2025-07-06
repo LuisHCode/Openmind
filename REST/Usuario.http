@@ -1,5 +1,6 @@
 
-@uriUsuario = http://localhost:9000/api/usuario
+@uriUsuario = http://localhost:8000/api/usuario
+@token = Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImVtYWlsIjoiY2FtaWlAZ21haWwuY29tIiwibm9tYnJlIjoiQ2FtaWxhIExvcmlhIiwiaWF0IjoxNzUxNzgwMzI0LCJleHAiOjE3NTE4NjY3MjQsInJlZiI6dHJ1ZX0.0OI9v3NPBUT4v90bCu6HQJ11ByM6N_e0ALjHyGrmU9w
 
 POST {{uriUsuario}}
 Content-Type: application/json
@@ -12,8 +13,8 @@ Content-Type: application/json
 
 ###
 
-GET {{uriUsuario}}/2
-
+GET {{uriUsuario}}/1
+Authorization: {{token}}
 ###
 PUT {{uriUsuario}}/3
 Content-Type: application/json

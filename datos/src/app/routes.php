@@ -32,4 +32,10 @@ $app->group('/api', function (RouteCollectorProxy $api) {
         $endpoint->get('', Matricula::class . ':read');
         $endpoint->delete('/{idMatricula}', Matricula::class . ':delete');
     });
+
+    $api->group('/auth', function (RouteCollectorProxy $endpoint) {
+        $endpoint->patch('/login', Auth::class . ':login');
+        $endpoint->patch('/refrescar', Auth::class . ':refrescar');
+        $endpoint->delete('/cerrar', Auth::class . ':cerrar');
+    });
 });
