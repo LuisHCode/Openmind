@@ -1,5 +1,4 @@
 <div class="page-container" *ngIf="course$ | async as course">
-  <!-- Header Section -->
   <div class="course-header">
     <button mat-icon-button class="back-button" (click)="goBack()">
       <mat-icon>arrow_back</mat-icon>
@@ -18,7 +17,7 @@
           <h1 class="course-title">{{ course.title }}</h1>
           <p class="course-instructor">
             <mat-icon>person</mat-icon>
-            {{ course.instructor }}
+            {{ creadorNombre }}
           </p>
           <p class="course-description">{{ course.description }}</p>
 
@@ -45,8 +44,24 @@
         <div class="stat-card">
           <mat-icon>group</mat-icon>
           <div class="stat-content">
-            <span class="stat-number">{{ course.studentsCount }}</span>
+            <span class="stat-number">{{ estudiantesCount }}</span>
             <span class="stat-label">Estudiantes</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <mat-icon>attach_money</mat-icon>
+          <div class="stat-content">
+            <span class="stat-number">${{ ingresosTotales }}</span>
+            <span class="stat-label">Ingresos Totales</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <mat-icon>how_to_reg</mat-icon>
+          <div class="stat-content">
+            <span class="stat-number">{{ matriculadosCount }}</span>
+            <span class="stat-label">Matriculados</span>
           </div>
         </div>
 
@@ -61,7 +76,6 @@
     </div>
   </div>
 
-  <!-- Tabs Section -->
   <mat-tab-group class="details-tabs" animationDuration="300ms">
     <mat-tab label="Estudiantes Matriculados">
       <div class="tab-content">
@@ -71,7 +85,7 @@
               <mat-icon>group</mat-icon>
               Lista de Estudiantes ({{ students.length }})
             </h3>
-            <button mat-raised-button color="primary">
+            <button mat-raised-button color="primary" (click)="exportarListaEstudiantes(course, students)">
               <mat-icon>file_download</mat-icon>
               Exportar Lista
             </button>
@@ -116,23 +130,11 @@
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Acciones</th>
                 <td mat-cell *matCellDef="let student">
-                  <button
-                    mat-icon-button
-                    [matMenuTriggerFor]="studentMenu"
-                    aria-label="Más opciones">
+                  <button mat-icon-button [matMenuTriggerFor]="studentMenu" aria-label="Más opciones">
                     <mat-icon>more_vert</mat-icon>
                   </button>
-
                   <mat-menu #studentMenu="matMenu">
-                    <button mat-menu-item>
-                      <mat-icon>email</mat-icon>
-                      <span>Enviar Mensaje</span>
-                    </button>
-                    <button mat-menu-item>
-                      <mat-icon>assessment</mat-icon>
-                      <span>Ver Progreso</span>
-                    </button>
-                    <button mat-menu-item>
+                    <button mat-menu-item (click)="suspenderEstudiante(student, course.id)">
                       <mat-icon>block</mat-icon>
                       <span>Suspender</span>
                     </button>
@@ -164,13 +166,13 @@
             Métricas y Estadísticas
           </h3>
 
-          <div class="metrics-grid">
+          <div class="metrics-grid" *ngIf="students$ | async as students">
             <div class="metric-card mat-elevation-z1">
               <mat-icon class="metric-icon revenue">monetization_on</mat-icon>
               <div class="metric-content">
-                <span class="metric-value"
-                  >\${{ course.price * course.studentsCount}}</span
-                >
+                <span class="metric-value">
+                  ${{ course.price * students.length }}
+                </span>
                 <span class="metric-label">Ingresos Totales</span>
               </div>
             </div>
@@ -178,9 +180,7 @@
             <div class="metric-card mat-elevation-z1">
               <mat-icon class="metric-icon completion">check_circle</mat-icon>
               <div class="metric-content">
-                <span class="metric-value">{{
-                  Math.floor(course.studentsCount)
-                }}</span>
+                <span class="metric-value">{{ students.length }}</span>
                 <span class="metric-label">Matricularon</span>
               </div>
             </div>

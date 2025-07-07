@@ -1,0 +1,25 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+.register-card {
+  width: 350px;
+  padding: 2rem 1.5rem;
+}
+.full-width {
+  width: 100%;
+}
+.switch-link {
+  margin-top: 1rem;
+  text-align: center;
+}
+.switch-link a {
+  color: #1976d2;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-left: 4px;
+}

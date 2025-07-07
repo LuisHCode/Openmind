@@ -62,9 +62,9 @@ class Matricula extends ServicioCURL
 
     public function delete(Request $request, Response $response, $args)
     {
-        $idMatricula = $args['idMatricula'] ?? null;
+        $body = $request->getBody()->getContents();
         $authHeader = $request->getHeaderLine('Authorization');
-        $respA = $this->ejecutarCURL($this::ENDPOINT . '/' . $idMatricula, 'DELETE', null, $authHeader);
+        $respA = $this->ejecutarCURL($this::ENDPOINT , 'DELETE', $body, $authHeader);
         $response->getBody()->write($respA['resp']);
         return $response->withHeader('Content-Type', 'application/json')->withStatus($respA['status']);
     }

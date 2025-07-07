@@ -1,0 +1,34 @@
+import { Injectable } from '@angular/core';
+import { jsPDF } from 'jspdf';
+import { autoTable } from 'jspdf-autotable';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class PrintService {
+  constructor() {}
+
+  print(
+    encabezado: string[],
+    cuerpo: Array<any>,
+    titulo: string,
+    guardar?: boolean
+  ) {
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'px',
+      format: 'letter'
+    });
+    doc.text(titulo, doc.internal.pageSize.width / 2, 25, {align: 'center'});
+    autoTable(doc, {
+      head: [encabezado],
+      body: cuerpo
+    });
+    if(guardar){
+      const hoy = new Date();
+      const fechaStr = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0') + '-' + String(hoy.getDate()).padStart(2,'0');
+      const nombreLimpio = titulo.replace(/[^a-zA-Z0-9\-_ ]/g, '').replace(/\s+/g, '_');
+      doc.save(`${nombreLimpio}_${fechaStr}.pdf`);
+    }
+  }
+}

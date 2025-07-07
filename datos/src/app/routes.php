@@ -33,7 +33,7 @@ $app->group('/api', function (RouteCollectorProxy $api) {
         $endpoint->post('/{idCurso}', Matricula::class . ':create');
         $endpoint->put('/{idMatricula}', Matricula::class . ':update');
         $endpoint->get('', Matricula::class . ':read');
-        $endpoint->delete('/{idMatricula}', Matricula::class . ':delete');
+        $endpoint->delete('', Matricula::class . ':delete');
     });
 
     $api->group('/auth', function (RouteCollectorProxy $endpoint) {

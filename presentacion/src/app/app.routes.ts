@@ -12,6 +12,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/login/login.component').then(m => m.LoginComponent)
   },
   {
+    path: 'register',
+    loadComponent: () => import('./components/register/register.component').then(m => m.RegisterComponent)
+  },
+  {
     path: '',
     loadComponent: () => import('./components/layout/layout.component').then(m => m.LayoutComponent),
     canActivate: [AuthGuard],
@@ -31,6 +35,10 @@ export const routes: Routes = [
       {
         path: 'my-created-courses',
         loadComponent: () => import('./components/my-created-courses/my-created-courses.component').then(m => m.MyCreatedCoursesComponent)
+      },
+      {
+        path: 'edit-course/:id',
+        loadComponent: () => import('./components/edit-course/edit-course.component').then(m => m.EditCourseComponent)
       },
       {
         path: 'course-details/:id',

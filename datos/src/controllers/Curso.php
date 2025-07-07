@@ -25,7 +25,11 @@ class Curso
         $categoria = $data['categoria'];
         $nivel = $data['nivel'];
         $cupo = $data['cupo'];
-
+        $precio = $data['precio'] ?? 0.00;
+        $imagen_url = $data['imagen_url'] ?? null;
+        if ($imagen_url === null || $imagen_url === '') {
+            $imagen_url = 'https://images.unsplash.com/photo-1669023414162-5bb06bbff0ec?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+        }
         if ($cupo === null || $cupo === '') {
             $cupo = 30;
         }
@@ -33,7 +37,7 @@ class Curso
             $semanas_duracion = 8;
         }
 
-        $sql = "SELECT fn_create_curso(:titulo, :descripcion, :creador_id, :fecha_inicio, :semanas_duracion, :categoria, :nivel, :cupo) AS resultado";
+        $sql = "SELECT fn_create_curso(:titulo, :descripcion, :creador_id, :fecha_inicio, :semanas_duracion, :categoria, :nivel, :cupo, :precio, :imagen_url) AS resultado";
 
         $pdo = $this->container->get('OMbase_datos');
         $stmt = $pdo->prepare($sql);
@@ -46,6 +50,8 @@ class Curso
             'categoria' => $categoria,
             'nivel' => $nivel,
             'cupo' => $cupo,
+            'precio' => $precio,
+            'imagen_url' => $imagen_url,
         ]);
 
         $resultado = $stmt->fetchColumn();
@@ -70,6 +76,8 @@ class Curso
         $curso = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($curso && $curso['id'] !== null) {
+            // Asegurarse de que 'precio' esté presente y sea float
+            $curso['precio'] = isset($curso['precio']) ? (float) $curso['precio'] : 0.0;
             return $this->respondWithJson($response, $curso, 200);
         }
 
@@ -78,7 +86,7 @@ class Curso
 
     public function update(Request $request, Response $response, $args)
     {
-        $idCurso = $args['idCurso'];        
+        $idCurso = $args['idCurso'];
         $data = json_decode($request->getBody(), true);
         $titulo = $data['titulo'] ?? null;
         $descripcion = $data['descripcion'] ?? null;
@@ -87,8 +95,13 @@ class Curso
         $categoria = $data['categoria'] ?? null;
         $nivel = $data['nivel'] ?? null;
         $cupo = $data['cupo'] ?? null;
+        $precio = $data['precio'] ?? null;
+        $imagen_url = $data['imagen_url'] ?? null;
+        if ($imagen_url === null || $imagen_url === '') {
+            $imagen_url = 'https://images.unsplash.com/photo-1669023414162-5bb06bbff0ec?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+        }
 
-        $sql = "SELECT fn_update_curso(:id, :titulo, :descripcion, :fecha_inicio, :semanas_duracion, :categoria, :nivel, :cupo) AS resultado";
+        $sql = "SELECT fn_update_curso(:id, :titulo, :descripcion, :fecha_inicio, :semanas_duracion, :categoria, :nivel, :cupo, :precio, :imagen_url) AS resultado";
 
         $pdo = $this->container->get('OMbase_datos');
         $stmt = $pdo->prepare($sql);
@@ -101,6 +114,8 @@ class Curso
             'categoria' => $categoria,
             'nivel' => $nivel,
             'cupo' => $cupo,
+            'precio' => $precio,
+            'imagen_url' => $imagen_url,
         ]);
 
         $resultado = $stmt->fetchColumn();
@@ -144,6 +159,10 @@ class Curso
         $pdo = $this->container->get('OMbase_datos');
         $stmt = $pdo->query($sql);
         $cursos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        // Asegurarse de que 'precio' esté presente y sea float en todos los cursos
+        foreach ($cursos as &$curso) {
+            $curso['precio'] = isset($curso['precio']) ? (float) $curso['precio'] : 0.0;
+        }
         return $this->respondWithJson($response, $cursos, 200);
     }
 
@@ -166,6 +185,10 @@ class Curso
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['idCreador' => $idCreador]);
         $cursos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        // Asegurarse de que 'precio' esté presente y sea float en todos los cursos
+        foreach ($cursos as &$curso) {
+            $curso['precio'] = isset($curso['precio']) ? (float) $curso['precio'] : 0.0;
+        }
         return $this->respondWithJson($response, $cursos, 200);
     }
 

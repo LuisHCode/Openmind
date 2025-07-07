@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { Course, User, CourseStats } from '../models/course.model';
+import { CourseApiService } from './course-api.service';
+import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,127 +17,17 @@ export class CourseService {
   private createdCoursesSubject = new BehaviorSubject<Course[]>([]);
   public createdCourses$ = this.createdCoursesSubject.asObservable();
 
-  constructor() {
-    this.initializeMockData();
-  }
-
-  private initializeMockData(): void {
-    const mockCourses: Course[] = [
-      {
-        id: '1',
-        title: 'Desarrollo Web con Angular',
-        description: 'Aprende a crear aplicaciones web modernas con Angular desde cero.',
-        instructor: 'María García',
-        duration: '40 horas',
-        level: 'Intermedio',
-        category: 'Desarrollo Web',
-        price: 299,
-        studentsCount: 1250,
-        imageUrl: 'https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
-        createdAt: new Date('2024-01-15')
-      },
-      {
-        id: '2',
-        title: 'Python para Data Science',
-        description: 'Domina Python y sus librerías para análisis de datos y machine learning.',
-        instructor: 'Carlos López',
-        duration: '60 horas',
-        level: 'Avanzado',
-        category: 'Data Science',
-        price: 399,
-        studentsCount: 890,
-        imageUrl: 'https://images.pexels.com/photos/574070/pexels-photo-574070.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
-        createdAt: new Date('2024-02-01')
-      },
-      {
-        id: '3',
-        title: 'Diseño UX/UI Moderno',
-        description: 'Aprende a diseñar experiencias de usuario atractivas y funcionales.',
-        instructor: 'Ana Martínez',
-        duration: '35 horas',
-        level: 'Principiante',
-        category: 'Diseño',
-        price: 249,
-        studentsCount: 2100,
-        imageUrl: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
-        createdAt: new Date('2024-01-20')
-      },
-      {
-        id: '4',
-        title: 'JavaScript Avanzado',
-        description: 'Profundiza en conceptos avanzados de JavaScript y ES6+.',
-        instructor: 'David Rodríguez',
-        duration: '45 horas',
-        level: 'Avanzado',
-        category: 'Programación',
-        price: 349,
-        studentsCount: 760,
-        imageUrl: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
-        createdAt: new Date('2024-02-10')
-      },
-      {
-        id: '5',
-        title: 'Marketing Digital 2024',
-        description: 'Estrategias modernas de marketing digital y redes sociales.',
-        instructor: 'Laura Fernández',
-        duration: '30 horas',
-        level: 'Intermedio',
-        category: 'Marketing',
-        price: 199,
-        studentsCount: 1500,
-        imageUrl: 'https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
-        createdAt: new Date('2024-01-25')
-      },
-      {
-        id: '6',
-        title: 'React Native para Mobile',
-        description: 'Desarrolla aplicaciones móviles nativas con React Native.',
-        instructor: 'Roberto Silva',
-        duration: '50 horas',
-        level: 'Intermedio',
-        category: 'Desarrollo Mobile',
-        price: 379,
-        studentsCount: 650,
-        imageUrl: 'https://images.pexels.com/photos/147413/twitter-facebook-together-exchange-of-information-147413.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
-        createdAt: new Date('2024-02-05')
-      }
-    ];
-
-    const createdCourses: Course[] = [
-      {
-        id: 'created-1',
-        title: 'Mi Curso de Angular Material',
-        description: 'Un curso completo sobre cómo usar Angular Material en aplicaciones reales.',
-        instructor: 'Usuario Demo',
-        duration: '25 horas',
-        level: 'Intermedio',
-        category: 'Desarrollo Web',
-        price: 199,
-        studentsCount: 45,
-        imageUrl: 'https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1',
-        createdAt: new Date('2024-03-01')
-      }
-    ];
-
-    this.coursesSubject.next(mockCourses);
-    this.createdCoursesSubject.next(createdCourses);
-    
-    // Cursos matriculados demo
-    this.enrolledCoursesSubject.next(['1', '3']);
+  constructor(private courseApi: CourseApiService) {
   }
 
   getAllCourses(): Observable<Course[]> {
-    // Combinar cursos existentes con cursos creados para mostrar en dashboard
     const allCourses = this.coursesSubject.value;
     const createdCourses = this.createdCoursesSubject.value;
     const enrolledIds = this.enrolledCoursesSubject.value;
-    
-    // Marcar cursos como matriculados
     const coursesWithEnrollmentStatus = [...allCourses, ...createdCourses].map(course => ({
       ...course,
       isEnrolled: enrolledIds.includes(course.id)
     }));
-    
     return of(coursesWithEnrollmentStatus);
   }
 
@@ -146,7 +38,6 @@ export class CourseService {
       const enrolledCourses = allCourses.filter(course => 
         enrolledIds.includes(course.id)
       ).map(course => ({ ...course, isEnrolled: true }));
-      
       observer.next(enrolledCourses);
       observer.complete();
     });
@@ -157,9 +48,24 @@ export class CourseService {
   }
 
   getCourseById(id: string): Observable<Course | undefined> {
-    const allCourses = [...this.coursesSubject.value, ...this.createdCoursesSubject.value];
-    const course = allCourses.find(c => c.id === id);
-    return of(course);
+    return this.courseApi.getById(id).pipe(
+      map(curso => ({
+        id: String(curso.id),
+        title: curso.titulo || 'Sin título',
+        description: curso.descripcion || '',
+        instructor: curso.creador_nombre || 'Desconocido',
+        duration: (curso.semanas_duracion ? curso.semanas_duracion + ' Semanas' : ''),
+        level: curso.nivel || 'Intermedio',
+        category: curso.categoria || 'General',
+        price: curso.precio || 0,
+        studentsCount: curso.estudiantes || 0,
+        cupo: curso.cupo || 0,
+        imageUrl: curso.imagen_url,
+        imagen_url: curso.imagen_url,
+        createdAt: curso.fecha_creacion ? new Date(curso.fecha_creacion) : new Date(),
+        creador_id: curso.creador_id
+      }))
+    );
   }
 
   enrollInCourse(courseId: string): Observable<boolean> {
@@ -168,8 +74,6 @@ export class CourseService {
         const currentEnrolled = this.enrolledCoursesSubject.value;
         if (!currentEnrolled.includes(courseId)) {
           this.enrolledCoursesSubject.next([...currentEnrolled, courseId]);
-          
-          // Incrementar contador de estudiantes del curso
           this.incrementStudentCount(courseId);
         }
         observer.next(true);
@@ -179,7 +83,6 @@ export class CourseService {
   }
 
   private incrementStudentCount(courseId: string): void {
-    // Incrementar en cursos principales
     const currentCourses = this.coursesSubject.value;
     const updatedCourses = currentCourses.map(course => 
       course.id === courseId 
@@ -187,8 +90,6 @@ export class CourseService {
         : course
     );
     this.coursesSubject.next(updatedCourses);
-
-    // Incrementar en cursos creados
     const currentCreated = this.createdCoursesSubject.value;
     const updatedCreated = currentCreated.map(course => 
       course.id === courseId 
@@ -196,10 +97,6 @@ export class CourseService {
         : course
     );
     this.createdCoursesSubject.next(updatedCreated);
-  }
-
-  isEnrolledInCourse(courseId: string): boolean {
-    return this.enrolledCoursesSubject.value.includes(courseId);
   }
 
   createCourse(course: Omit<Course, 'id' | 'createdAt' | 'studentsCount' | 'rating'>): Observable<Course> {
@@ -223,46 +120,31 @@ export class CourseService {
   }
 
   getCourseStudents(courseId: string): Observable<User[]> {
-    // Mock data de estudiantes
-    const mockStudents: User[] = [
-      {
-        id: '1',
-        name: 'Ana García',
-        email: 'ana.garcia@email.com',
-        avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1',
-        enrolledAt: new Date('2024-03-05')
-      },
-      {
-        id: '2',
-        name: 'Carlos Ruiz',
-        email: 'carlos.ruiz@email.com',
-        avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1',
-        enrolledAt: new Date('2024-03-07')
-      },
-      {
-        id: '3',
-        name: 'María López',
-        email: 'maria.lopez@email.com',
-        avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1',
-        enrolledAt: new Date('2024-03-10')
-      }
-    ];
-    
-    return of(mockStudents);
+    return this.courseApi
+      .getMatriculados(courseId)
+      .pipe(
+        map((matriculados: any[]) =>
+          matriculados.map((m) => ({
+            id: String(m.id),
+            name: m.nombre || '',
+            email: m.email || '',
+            avatar: m.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(m.nombre || 'Estudiante'),
+            enrolledAt: m.fecha_matricula ? new Date(m.fecha_matricula) : undefined,
+          }))
+        )
+      );
   }
 
   getStats(): Observable<CourseStats> {
     const allCourses = this.coursesSubject.value.length + this.createdCoursesSubject.value.length;
     const enrolled = this.enrolledCoursesSubject.value.length;
     const created = this.createdCoursesSubject.value.length;
-    
     const stats: CourseStats = {
       totalCourses: allCourses,
       enrolledCourses: enrolled,
       createdCourses: created,
-      completedCourses: Math.floor(enrolled * 0.7) // 70% completed
+      completedCourses: Math.floor(enrolled * 0.7)
     };
-    
     return of(stats);
   }
 }

@@ -1,18 +1,18 @@
 
-@uriMatricula = http://localhost:8000/api/matricula
-@token = Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMsImVtYWlsIjoibHVpc0BnbWFpbC5jb20iLCJub21icmUiOiJMdWlzIExvcGV6IiwiaWF0IjoxNzUxODUzMTMzLCJleHAiOjE3NTE4NTM3MzMsInJlZiI6dHJ1ZX0.E7Mrpa5P-a7ECLr1N97HEYB6vpT9LT9qT9yVdR5EGSQ
+@uriMatricula = http://localhost:9000/api/matricula
+@token = Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImVtYWlsIjoibHVpc0BnbWFpbC5jb20iLCJub21icmUiOiJMdWlzIExvcGV6IiwiaWF0IjoxNzUxODY3Nzk3LCJleHAiOjE3NTE4NjgzOTcsInJlZiI6dHJ1ZX0.q_3ZTb__bFEDxxW4lcZTxunPpnyDQ-YnV03MKFdMKjs
 
 POST {{uriMatricula}}/1
 Content-Type: application/json
 Authorization: {{token}}
 
 {
-    "idUsuario": "5"
+    "idUsuario": "2"
 }
 
 ###
 
-GET  {{uriMatricula}}?idCurso=1
+GET  {{uriMatricula}}?idUsuario=4
 Authorization: {{token}}
 
 ###
@@ -27,4 +27,11 @@ Content-Type: application/json
 
 ###
 
-DELETE {{uriMatricula}}/1
+DELETE {{uriMatricula}}
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "idUsuario": "4",
+  "idCurso": "1"
+}

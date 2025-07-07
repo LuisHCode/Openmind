@@ -59,13 +59,22 @@ export class LoginComponent {
           this.isLoading = false;
           if (success) {
             this.router.navigate(["/dashboard"]);
+          } else {
+            this.loginError = "Credenciales inválidas";
           }
         },
-        error: () => {
+        error: (err) => {
           this.isLoading = false;
           this.loginError = "Credenciales inválidas";
         },
+        complete: () => {
+          this.isLoading = false;
+        },
       });
     }
+  }
+
+  goToRegister() {
+    this.router.navigate(['/register']);
   }
 }

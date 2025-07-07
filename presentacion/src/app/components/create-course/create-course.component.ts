@@ -15,7 +15,8 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSnackBarModule, MatSnackBar } from "@angular/material/snack-bar";
-import { CourseService } from "../../services/course.service";
+import { CourseApiService } from "../../services/course-api.service";
+import { AuthService } from "../../services/auth.service";
 
 @Component({
   selector: "app-create-course",
@@ -41,9 +42,10 @@ export class CreateCourseComponent {
 
   constructor(
     private fb: FormBuilder,
-    private courseService: CourseService,
+    private courseApi: CourseApiService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.courseForm = this.fb.group({
       title: ["", Validators.required],
@@ -52,19 +54,39 @@ export class CreateCourseComponent {
       level: ["", Validators.required],
       duration: ["", Validators.required],
       price: [0, [Validators.required, Validators.min(0)]],
-      imageUrl: [
-        "https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1",
-        Validators.required,
-      ],
+      imageUrl: ["", Validators.required],
+      cupo: [0, [Validators.required, Validators.min(1)]],
     });
   }
 
   onSubmit(): void {
     if (this.courseForm.valid) {
       this.isCreating = true;
-
-      this.courseService.createCourse(this.courseForm.value).subscribe({
-        next: (course) => {
+      const user = this.authService.getCurrentUser();
+      if (!user) {
+        this.snackBar.open(
+          "Debes iniciar sesión para crear un curso",
+          "Cerrar",
+          { duration: 3000 }
+        );
+        this.isCreating = false;
+        return;
+      }
+      const form = this.courseForm.value;
+      const body = {
+        titulo: form.title,
+        descripcion: form.description,
+        categoria: form.category,
+        nivel: form.level,
+        semanas_duracion: parseInt(form.duration, 10) || 8,
+        precio: form.price,
+        imagen_url: form.imageUrl,
+        creador_id: user.id,
+        fecha_inicio: new Date().toISOString().slice(0, 10),
+        cupo: 30,
+      };
+      this.courseApi.create(body).subscribe({
+        next: () => {
           this.isCreating = false;
           this.snackBar.open("¡Curso creado exitosamente!", "Cerrar", {
             duration: 3000,
@@ -91,8 +113,7 @@ export class CreateCourseComponent {
     this.courseForm.reset();
     this.courseForm.patchValue({
       price: 0,
-      imageUrl:
-        "https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=1",
+      imageUrl: "",
     });
   }
 }

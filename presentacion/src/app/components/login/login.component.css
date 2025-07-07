@@ -1,4 +1,4 @@
-    .login-container {
+.login-container {
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -71,4 +71,15 @@
     mat-card-subtitle {
       color: var(--text-secondary);
       margin-top: 4px;
+    }
+
+    .switch-link {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .switch-link a {
+      color: #1976d2;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-left: 4px;
     }

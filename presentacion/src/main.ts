@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter, RouterOutlet } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app/app.routes';
+import { jwtInterceptor } from './app/services/jwt-interceptor';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,10 @@ bootstrapApplication(App, {
   providers: [
     provideRouter(routes),
     provideAnimations(),
-    provideHttpClient() // <-- Agregado para HttpClient
+    provideHttpClient(
+      withInterceptors([
+        jwtInterceptor
+      ])
+    )
   ]
-}).catch(err => console.error(err));
+});

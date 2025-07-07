@@ -66,10 +66,10 @@ class Matricula
             'idCurso' => $idCurso
         ]);
 
-        $curso = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $cursos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($curso && $curso['id'] !== null) {
-            return $this->respondWithJson($response, $curso, 200);
+        if ($cursos && count($cursos) > 0 && $cursos[0]['id'] !== null) {
+            return $this->respondWithJson($response, $cursos, 200);
         }
         return $this->respondWithJson($response, ['error' => 'Curso o usuario no encontrado, valida ingresar todos los datos o valida que son correctos'], 404);
     }
@@ -115,23 +115,25 @@ class Matricula
 
     public function delete(Request $request, Response $response, $args)
     {
-        $idCurso = $args['idCurso'];
+        $data = json_decode($request->getBody(), true);
+        $idUsuario = $data['idUsuario'] ?? null;
+        $idCurso = $data['idCurso'] ?? null;
 
-        $sql = "SELECT fn_delete_curso(:idCurso) AS resultado";
+        $sql = "SELECT fn_delete_matricula(:idUsuario, :idCurso) AS resultado";
 
-        $pdo = $this->container->get('OMbase_datos'); // Usando tu contenedor
-
+        $pdo = $this->container->get('OMbase_datos');
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
+            'idUsuario' => $idUsuario,
             'idCurso' => $idCurso
         ]);
 
         $resultado = $stmt->fetchColumn();
 
         if ($resultado == 0) {
-            return $this->respondWithJson($response, ['mensaje' => 'Curso eliminado correctamente'], 201);
+            return $this->respondWithJson($response, ['mensaje' => 'Matrícula eliminada correctamente'], 201);
         } elseif ($resultado == 1) {
-            return $this->respondWithJson($response, ['error' => 'No se encontro el curso'], 409);
+            return $this->respondWithJson($response, ['error' => 'No se encontró la matrícula'], 409);
         }
 
         return $this->respondWithJson($response, ['error' => 'Error desconocido'], 500);

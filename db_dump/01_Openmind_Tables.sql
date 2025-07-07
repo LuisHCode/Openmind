@@ -22,6 +22,8 @@ CREATE TABLE cursos (
     categoria ENUM('Backend', 'Frontend', 'Desarrollo Web', 'DevOps', 'Data Science', 'IA', 'Móvil', 'Fullstack') NOT NULL,
     nivel ENUM('Principiante', 'Intermedio', 'Avanzado') NOT NULL,
     cupo INT NOT NULL DEFAULT 30,
+    precio DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    imagen_url VARCHAR(500) NOT NULL DEFAULT "https://images.unsplash.com/photo-1669023414162-5bb06bbff0ec?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     FOREIGN KEY (creador_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
@@ -50,72 +52,43 @@ BEGIN
     END IF;
 END $$
 
-CREATE PROCEDURE sp_get_curso(IN c_id INT)
-BEGIN
-    IF EXISTS (SELECT id FROM cursos WHERE id = c_id) THEN
-        SELECT c.id, c.titulo, c.descripcion, u.nombre, c.fecha_inicio, c.semanas_duracion, c.categoria, c.nivel, c.cupo
-        FROM cursos c
-        JOIN usuarios u ON c.creador_id = u.id
-        WHERE c.id = c_id;
-    ELSE
-        SELECT NULL AS id;
-    END IF;
-END $$
-
+DELIMITER $$
 CREATE PROCEDURE sp_get_matricula(
     IN p_usuario_id INT,
     IN p_curso_id INT
 )
 BEGIN
     IF p_usuario_id IS NOT NULL AND p_curso_id IS NOT NULL THEN
-        -- Ambos parámetros
-        IF EXISTS (
-            SELECT 1 FROM matriculas
-            WHERE usuario_id = p_usuario_id AND curso_id = p_curso_id
-        ) THEN
-            SELECT m.id, u.nombre AS usuario, c.titulo AS curso, m.fecha_matricula
-            FROM matriculas m
-            JOIN usuarios u ON m.usuario_id = u.id
-            JOIN cursos c ON m.curso_id = c.id
-            WHERE m.usuario_id = p_usuario_id AND m.curso_id = p_curso_id;
-        ELSE
-            SELECT NULL AS id;
-        END IF;
+        -- Ambos parámetros: matrícula específica
+        SELECT m.id, u.nombre AS usuario, c.titulo AS curso, m.fecha_matricula
+        FROM matriculas m
+        JOIN usuarios u ON m.usuario_id = u.id
+        JOIN cursos c ON m.curso_id = c.id
+        WHERE m.usuario_id = p_usuario_id AND m.curso_id = p_curso_id;
 
     ELSEIF p_usuario_id IS NOT NULL THEN
-        -- Solo usuario
-        IF EXISTS (
-            SELECT 1 FROM matriculas WHERE usuario_id = p_usuario_id
-        ) THEN
-            SELECT m.id, u.nombre AS usuario, c.titulo AS curso, m.fecha_matricula
-            FROM matriculas m
-            JOIN usuarios u ON m.usuario_id = u.id
-            JOIN cursos c ON m.curso_id = c.id
-            WHERE m.usuario_id = p_usuario_id;
-        ELSE
-            SELECT NULL AS id;
-        END IF;
+        -- Todas las matrículas del usuario (AQUÍ AGREGAMOS c.imagen_url)
+        SELECT m.id, m.curso_id, c.titulo AS curso, c.descripcion, c.semanas_duracion, c.categoria, c.nivel, c.cupo,
+               c.creador_id, u.nombre AS usuario, cu.nombre AS creador_nombre, m.fecha_matricula, c.imagen_url
+        FROM matriculas m
+        JOIN usuarios u ON m.usuario_id = u.id
+        JOIN cursos c ON m.curso_id = c.id
+        JOIN usuarios cu ON c.creador_id = cu.id
+        WHERE m.usuario_id = p_usuario_id;
 
     ELSEIF p_curso_id IS NOT NULL THEN
-        -- Solo curso
-        IF EXISTS (
-            SELECT 1 FROM matriculas WHERE curso_id = p_curso_id
-        ) THEN
-            SELECT m.id, u.nombre AS usuario, c.titulo AS curso, m.fecha_matricula
-            FROM matriculas m
-            JOIN usuarios u ON m.usuario_id = u.id
-            JOIN cursos c ON m.curso_id = c.id
-            WHERE m.curso_id = p_curso_id;
-        ELSE
-            SELECT NULL AS id;
-        END IF;
+        -- Todas las matrículas de un curso
+        SELECT m.id, u.nombre AS usuario, c.titulo AS curso, m.fecha_matricula
+        FROM matriculas m
+        JOIN usuarios u ON m.usuario_id = u.id
+        JOIN cursos c ON m.curso_id = c.id
+        WHERE m.curso_id = p_curso_id;
 
     ELSE
-        -- Ningún parámetro
-        SELECT NULL AS id;
+        -- Ningún parámetro: no retorna nada
+        SELECT NULL AS id LIMIT 0;
     END IF;
 END $$
-
 -- Funciones con control de errores para usuarios
 CREATE FUNCTION fn_update_usuario(p_id INT, p_nombre VARCHAR(100), p_email VARCHAR(100))
 RETURNS INT
@@ -178,7 +151,9 @@ CREATE FUNCTION fn_update_curso(
     p_semanas_duracion INT,
     p_categoria VARCHAR(30),
     p_nivel VARCHAR(20),
-    p_cupo INT
+    p_cupo INT,
+    p_precio DECIMAL(10,2),
+    p_imagen_url VARCHAR(500)
 )
 RETURNS INT
 NOT DETERMINISTIC
@@ -216,6 +191,14 @@ BEGIN
         IF p_cupo IS NOT NULL THEN
             UPDATE cursos SET cupo = p_cupo WHERE id = p_id;
         END IF;
+
+        IF p_precio IS NOT NULL THEN
+            UPDATE cursos SET precio = p_precio WHERE id = p_id;
+        END IF;
+
+        IF p_imagen_url IS NOT NULL THEN
+            UPDATE cursos SET imagen_url = p_imagen_url WHERE id = p_id;
+        END IF;
     END IF;
 
     RETURN not_found;
@@ -244,7 +227,9 @@ CREATE FUNCTION fn_create_curso(
     p_semanas_duracion INT,
     p_categoria VARCHAR(30),
     p_nivel VARCHAR(20),
-    p_cupo INT
+    p_cupo INT,
+    p_precio DECIMAL(10,2),
+    p_imagen_url VARCHAR(500)
 )
 RETURNS INT
 NOT DETERMINISTIC
@@ -253,25 +238,13 @@ BEGIN
     DECLARE valido INT DEFAULT 0;
 
     IF EXISTS (SELECT id FROM usuarios WHERE id = p_creador_id) THEN
-        INSERT INTO cursos(titulo, descripcion, creador_id, fecha_inicio, semanas_duracion, categoria, nivel, cupo)
-        VALUES (p_titulo, p_descripcion, p_creador_id, p_fecha_inicio, p_semanas_duracion, p_categoria, p_nivel, p_cupo);
+        INSERT INTO cursos(titulo, descripcion, creador_id, fecha_inicio, semanas_duracion, categoria, nivel, cupo, precio, imagen_url)
+        VALUES (p_titulo, p_descripcion, p_creador_id, p_fecha_inicio, p_semanas_duracion, p_categoria, p_nivel, p_cupo, p_precio, p_imagen_url);
     ELSE
         SET valido = 1;
     END IF;
 
     RETURN valido;
-END $$
-
-CREATE FUNCTION fn_get_curso(p_id INT) 
-RETURNS INT
-NOT DETERMINISTIC
-READS SQL DATA
-BEGIN
-    DECLARE encontrado INT DEFAULT 0;
-    IF EXISTS (SELECT id FROM cursos WHERE id = p_id) THEN
-        SET encontrado = 1;
-    END IF;
-    RETURN encontrado;
 END $$
 
 -- Funciones con control de errores para matrículas
@@ -289,25 +262,38 @@ BEGIN
     RETURN not_found;
 END $$
 
+
 CREATE FUNCTION fn_create_matricula(p_usuario_id INT, p_curso_id INT) 
 RETURNS INT
 NOT DETERMINISTIC
 MODIFIES SQL DATA
 BEGIN
     DECLARE error_flag INT DEFAULT 0;
-    IF NOT EXISTS (SELECT id FROM usuarios WHERE id = p_usuario_id) OR NOT EXISTS (SELECT id FROM cursos WHERE id = p_curso_id) THEN
+    
+    -- Validar existencia de usuario o curso
+    IF (NOT EXISTS (SELECT 1 FROM usuarios WHERE id = p_usuario_id)) 
+        OR (NOT EXISTS (SELECT 1 FROM cursos WHERE id = p_curso_id)) THEN
         SET error_flag = 1;
+    
+    -- Validar cupo disponible
     ELSEIF ((SELECT cupo FROM cursos WHERE id = p_curso_id) = 0) THEN
         SET error_flag = 4;
-    ELSEIF EXISTS (SELECT id FROM matriculas WHERE usuario_id = p_usuario_id AND curso_id = p_curso_id) THEN
+    
+    -- Validar que no esté ya matriculado
+    ELSEIF (EXISTS (SELECT 1 FROM matriculas WHERE usuario_id = p_usuario_id AND curso_id = p_curso_id)) THEN
         SET error_flag = 2;
-    ELSEIF EXISTS (SELECT id FROM cursos WHERE creador_id = p_usuario_id) THEN
+
+    -- Validar que no sea el creador del curso
+    ELSEIF (EXISTS (SELECT 1 FROM cursos WHERE id = p_curso_id AND creador_id = p_usuario_id)) THEN
         SET error_flag = 3;
+    
+    -- Insertar matrícula
     ELSE
         INSERT INTO matriculas(usuario_id, curso_id, fecha_matricula) VALUES (p_usuario_id, p_curso_id, NOW());
     END IF;
+
     RETURN error_flag;
-END $$
+END$$
 
 
 CREATE FUNCTION fn_update_matricula(
@@ -363,6 +349,66 @@ BEGIN
     RETURN not_found;
 END $$
 
+CREATE PROCEDURE sp_verificar_token (
+    IN p_email VARCHAR(100),
+    IN p_tkref VARCHAR(512)
+)
+BEGIN
+    SELECT id FROM usuarios WHERE email = p_email AND tkref = p_tkref;
+END $$
+
+CREATE FUNCTION fn_modificar_token (
+    p_email VARCHAR(100),
+    p_tkref VARCHAR(512)
+) RETURNS INT DETERMINISTIC
+BEGIN
+    DECLARE cnt INT;
+    SELECT COUNT(id) INTO cnt FROM usuarios WHERE email = p_email;
+    IF cnt > 0 THEN
+        UPDATE usuarios SET tkref = p_tkref WHERE email = p_email;
+    END IF;
+    RETURN cnt;
+END $$
+
+-- SP: Traer todos los cursos con datos del creador
+CREATE PROCEDURE sp_get_todos_cursos()
+BEGIN
+    SELECT c.id, c.titulo, c.descripcion, c.fecha_inicio, c.semanas_duracion, c.categoria, c.nivel, c.cupo,
+           c.precio, c.imagen_url, u.id AS creador_id, u.nombre AS creador_nombre, u.email AS creador_email
+    FROM cursos c
+    JOIN usuarios u ON c.creador_id = u.id;
+END $$
+
+-- SP: Traer todos los matriculados a un curso (por id de curso)
+CREATE PROCEDURE sp_get_matriculados_curso(IN p_curso_id INT)
+BEGIN
+    SELECT u.id, u.nombre, u.email, m.fecha_matricula
+    FROM matriculas m
+    JOIN usuarios u ON m.usuario_id = u.id
+    WHERE m.curso_id = p_curso_id;
+END $$
+
+-- SP: Traer todos los cursos creados por un usuario (por id de creador)
+CREATE PROCEDURE sp_get_cursos_por_creador(IN p_creador_id INT)
+BEGIN
+    SELECT c.id, c.titulo, c.descripcion, c.fecha_inicio, c.semanas_duracion, c.categoria, c.nivel, c.cupo,
+           c.precio, c.imagen_url, u.id AS creador_id, u.nombre AS creador_nombre, u.email AS creador_email
+    FROM cursos c
+    JOIN usuarios u ON c.creador_id = u.id
+    WHERE c.creador_id = p_creador_id;
+END $$
+
+-- SP: Traer un curso por id (incluyendo precio y nombre del creador)
+CREATE PROCEDURE sp_get_curso(IN p_id INT)
+BEGIN
+    SELECT c.id, c.titulo, c.descripcion, c.creador_id, u.nombre AS creador_nombre, c.fecha_inicio, c.semanas_duracion, c.categoria, c.nivel, c.cupo, c.precio, c.imagen_url
+    FROM cursos c
+    JOIN usuarios u ON c.creador_id = u.id
+    WHERE c.id = p_id;
+END $$
+
+
+
 CREATE TRIGGER tr_matricula_restar_cupo
 AFTER INSERT ON matriculas
 FOR EACH ROW
@@ -402,53 +448,13 @@ BEGIN
     END IF;
 END $$
 
-CREATE PROCEDURE sp_verificar_token (
-    IN p_email VARCHAR(100),
-    IN p_tkref VARCHAR(512)
-)
+CREATE TRIGGER tr_matricula_sumar_cupo
+AFTER DELETE ON matriculas
+FOR EACH ROW
 BEGIN
-    SELECT id FROM usuarios WHERE email = p_email AND tkref = p_tkref;
-END $$
-
-CREATE FUNCTION fn_modificar_token (
-    p_email VARCHAR(100),
-    p_tkref VARCHAR(512)
-) RETURNS INT DETERMINISTIC
-BEGIN
-    DECLARE cnt INT;
-    SELECT COUNT(id) INTO cnt FROM usuarios WHERE email = p_email;
-    IF cnt > 0 THEN
-        UPDATE usuarios SET tkref = p_tkref WHERE email = p_email;
-    END IF;
-    RETURN cnt;
-END $$
-
--- SP: Traer todos los cursos con datos del creador
-CREATE PROCEDURE sp_get_todos_cursos()
-BEGIN
-    SELECT c.id, c.titulo, c.descripcion, c.fecha_inicio, c.semanas_duracion, c.categoria, c.nivel, c.cupo,
-           u.id AS creador_id, u.nombre AS creador_nombre, u.email AS creador_email
-    FROM cursos c
-    JOIN usuarios u ON c.creador_id = u.id;
-END $$
-
--- SP: Traer todos los matriculados a un curso (por id de curso)
-CREATE PROCEDURE sp_get_matriculados_curso(IN p_curso_id INT)
-BEGIN
-    SELECT u.id, u.nombre, u.email
-    FROM matriculas m
-    JOIN usuarios u ON m.usuario_id = u.id
-    WHERE m.curso_id = p_curso_id;
-END $$
-
--- SP: Traer todos los cursos creados por un usuario (por id de creador)
-CREATE PROCEDURE sp_get_cursos_por_creador(IN p_creador_id INT)
-BEGIN
-    SELECT c.id, c.titulo, c.descripcion, c.fecha_inicio, c.semanas_duracion, c.categoria, c.nivel, c.cupo,
-           u.id AS creador_id, u.nombre AS creador_nombre, u.email AS creador_email
-    FROM cursos c
-    JOIN usuarios u ON c.creador_id = u.id
-    WHERE c.creador_id = p_creador_id;
+    UPDATE cursos
+    SET cupo = cupo + 1
+    WHERE id = OLD.curso_id;
 END $$
 
 DELIMITER ;

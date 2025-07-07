@@ -1,42 +1,4 @@
 <div class="page-container">
-  <!-- Stats Section -->
-  <div class="stats-section" *ngIf="stats$ | async as stats">
-    <div class="stats-grid">
-      <div class="stats-card mat-elevation-z1">
-        <mat-icon class="stats-icon">library_books</mat-icon>
-        <div class="stats-content">
-          <h3>{{ stats.totalCourses }}</h3>
-          <p>Cursos Disponibles</p>
-        </div>
-      </div>
-
-      <div class="stats-card mat-elevation-z1">
-        <mat-icon class="stats-icon enrolled">book</mat-icon>
-        <div class="stats-content">
-          <h3>{{ stats.enrolledCourses }}</h3>
-          <p>Cursos Matriculados</p>
-        </div>
-      </div>
-
-      <div class="stats-card mat-elevation-z1">
-        <mat-icon class="stats-icon created">create</mat-icon>
-        <div class="stats-content">
-          <h3>{{ stats.createdCourses }}</h3>
-          <p>Cursos Creados</p>
-        </div>
-      </div>
-
-      <div class="stats-card mat-elevation-z1">
-        <mat-icon class="stats-icon completed">check_circle</mat-icon>
-        <div class="stats-content">
-          <h3>{{ stats.completedCourses }}</h3>
-          <p>Cursos Completados</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Search and Filter Section -->
   <div class="search-container mat-elevation-z1">
     <div class="search-controls">
       <mat-form-field appearance="outline" class="search-field">
@@ -52,10 +14,14 @@
         <mat-label>Categoría</mat-label>
         <mat-select [formControl]="categoryControl">
           <mat-option value="">Todas las categorías</mat-option>
+          <mat-option value="Backend">Backend</mat-option>
+          <mat-option value="Frontend">Frontend</mat-option>
           <mat-option value="Desarrollo Web">Desarrollo Web</mat-option>
+          <mat-option value="DevOps">DevOps</mat-option>
           <mat-option value="Data Science">Data Science</mat-option>
-          <mat-option value="Diseño">Diseño</mat-option>
-          <mat-option value="Programación">Programación</mat-option>
+          <mat-option value="IA">IA</mat-option>
+          <mat-option value="Móvil">Móvil</mat-option>
+          <mat-option value="Fullstack">Fullstack</mat-option>
           <mat-option value="Marketing">Marketing</mat-option>
           <mat-option value="Desarrollo Mobile">Desarrollo Mobile</mat-option>
         </mat-select>
@@ -73,7 +39,6 @@
     </div>
   </div>
 
-  <!-- Courses Grid -->
   <div class="courses-section">
     <h2 class="section-title">
       <mat-icon>school</mat-icon>
@@ -91,13 +56,10 @@
           <div class="course-level-badge" [class]="course.level.toLowerCase()">
             {{ course.level }}
           </div>
-          <div class="enrollment-status" *ngIf="course.isEnrolled">
-            <mat-icon>check_circle</mat-icon>
-          </div>
         </div>
 
         <div class="course-content">
-
+          <h3 class="course-title">{{ course.title }}</h3>
           <p class="course-description">{{ course.description }}</p>
 
           <div class="course-meta">
@@ -111,7 +73,7 @@
             </div>
             <div class="meta-item">
               <mat-icon>group</mat-icon>
-              <span>{{ course.studentsCount }} estudiantes</span>
+              <span>{{ course.cupo }} cupos disponibles</span>
             </div>
           </div>
 
@@ -119,42 +81,31 @@
             <div class="course-price">
               <span class="price">$ {{ course.price }}</span>
             </div>
-            <button
-              mat-raised-button
-              [color]="course.isEnrolled ? 'accent' : 'primary'"
-              class="enroll-button"
-              [disabled]="isEnrolling || course.isEnrolled"
-              (click)="enrollInCourse(course.id)">
-              <mat-spinner
-                diameter="16"
-                *ngIf="
-                  isEnrolling && enrollingCourseId === course.id
-                "></mat-spinner>
-              <mat-icon
-                *ngIf="
-                  course.isEnrolled &&
-                  (!isEnrolling || enrollingCourseId !== course.id)
-                "
-                >check</mat-icon
-              >
-              <span
-                *ngIf="
-                  course.isEnrolled &&
-                  (!isEnrolling || enrollingCourseId !== course.id)
-                "
-                >Matriculado</span
-              >
-              <span
-                *ngIf="
-                  !course.isEnrolled &&
-                  (!isEnrolling || enrollingCourseId !== course.id)
-                "
-                >Matricularse</span
-              >
-              <span *ngIf="isEnrolling && enrollingCourseId === course.id"
-                >Matriculando...</span
-              >
-            </button>
+            <div>
+              <ng-container *ngIf="authService.getCurrentUser()?.id === course.creador_id; else notCreator">
+                <button mat-stroked-button color="primary" disabled class="enroll-button">Eres creador</button>
+              </ng-container>
+              <ng-template #notCreator>
+                <ng-container *ngIf="enrolledIds.has(course.id); else matriculaBlock">
+                  <button mat-stroked-button color="accent" disabled class="enroll-button">
+                    <mat-icon>check_circle</mat-icon>
+                    Matriculado
+                  </button>
+                </ng-container>
+                <ng-template #matriculaBlock>
+                  <button *ngIf="course.cupo > 0; else noCupoBlock" mat-raised-button color="primary" class="enroll-button" (click)="enroll(course)">
+                    <mat-icon>how_to_reg</mat-icon>
+                    Matricularse
+                  </button>
+                  <ng-template #noCupoBlock>
+                    <button mat-stroked-button color="warn" disabled class="enroll-button">
+                      <mat-icon>block</mat-icon>
+                      Sin cupo
+                    </button>
+                  </ng-template>
+                </ng-template>
+              </ng-template>
+            </div>
           </div>
         </div>
       </div>

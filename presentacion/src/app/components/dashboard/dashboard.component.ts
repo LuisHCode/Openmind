@@ -12,10 +12,11 @@ import { MatChipsModule } from "@angular/material/chips";
 import { MatGridListModule } from "@angular/material/grid-list";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSnackBarModule, MatSnackBar } from "@angular/material/snack-bar";
-import { CourseService } from "../../services/course.service";
-import { Course, CourseStats } from "../../models/course.model";
+import { CourseApiService } from "../../services/course-api.service";
+import { Course } from "../../models/course.model";
 import { Observable, combineLatest, map, startWith } from "rxjs";
 import { AuthService } from "../../services/auth.service";
+import { MatriculaApiService } from "../../services/matricula-api.service";
 
 @Component({
   selector: "app-dashboard",
@@ -39,26 +40,25 @@ import { AuthService } from "../../services/auth.service";
 })
 export class DashboardComponent implements OnInit {
   courses$: Observable<Course[]>;
-  stats$: Observable<CourseStats>;
   filteredCourses$: Observable<Course[]>;
+  enrolledIds: Set<string> = new Set();
 
   searchControl = new FormControl("");
   categoryControl = new FormControl("");
   levelControl = new FormControl("");
 
-  isEnrolling = false;
-  enrollingCourseId: string | null = null;
+  public userId: string | null = null;
+  public userName: string | null = null;
+  public isLoggedIn: boolean = false;
 
   constructor(
-    private courseService: CourseService,
+    private courseApi: CourseApiService,
     private snackBar: MatSnackBar,
     private router: Router,
-    public authService: AuthService
+    public authService: AuthService,
+    private matriculaApi: MatriculaApiService
   ) {
-    this.courses$ = this.courseService.getAllCourses();
-    this.stats$ = this.courseService.getStats();
-
-    // Filtrar cursos basado en controles de búsqueda
+    this.courses$ = this.courseApi.getAll();
     this.filteredCourses$ = combineLatest([
       this.courses$,
       this.searchControl.valueChanges.pipe(startWith("")),
@@ -80,49 +80,45 @@ export class DashboardComponent implements OnInit {
         });
       })
     );
+    const user = this.authService.getCurrentUser();
+    this.userId = user?.id ?? null;
+    this.userName = user?.name ?? null;
+    this.isLoggedIn = !!user;
+    if (this.isLoggedIn) {
+      this.matriculaApi.getMisCursos().subscribe((misCursos) => {
+        this.enrolledIds = new Set(misCursos.map((c) => c.id));
+      });
+    }
   }
 
   ngOnInit(): void {}
 
-  trackByCourseId(index: number, course: Course): string {
-    return course.id;
-  }
-
-  enrollInCourse(courseId: string): void {
-    if (this.courseService.isEnrolledInCourse(courseId)) {
-      return; // Ya está matriculado
-    }
-
-    this.isEnrolling = true;
-    this.enrollingCourseId = courseId;
-
-    this.courseService.enrollInCourse(courseId).subscribe({
-      next: (success) => {
-        this.isEnrolling = false;
-        this.enrollingCourseId = null;
-        if (success) {
-          this.snackBar.open("¡Te has matriculado exitosamente!", "Cerrar", {
-            duration: 3000,
-            panelClass: ["success-snackbar"],
-          });
-
-          // Refrescar los datos para mostrar el estado actualizado
-          this.courses$ = this.courseService.getAllCourses();
-          this.stats$ = this.courseService.getStats();
+  enroll(course: Course) {
+    if (!this.isLoggedIn || !this.userId) return;
+    this.matriculaApi.enrollToCourse(course.id).subscribe({
+      next: () => {
+        course.isEnrolled = true;
+        this.enrolledIds.add(course.id);
+        if (course.cupo > 0) {
+          course.cupo = course.cupo - 1;
         }
+        this.snackBar.open("¡Te has matriculado en el curso!", "Cerrar", {
+          duration: 2000,
+        });
       },
-      error: () => {
-        this.isEnrolling = false;
-        this.enrollingCourseId = null;
-        this.snackBar.open(
-          "Error al matricularse. Intenta de nuevo.",
-          "Cerrar",
-          {
-            duration: 3000,
-            panelClass: ["error-snackbar"],
-          }
-        );
+      error: (err) => {
+        let msg = 'No se pudo matricular';
+        if (err?.error?.error) {
+          msg = err.error.error;
+        }
+        this.snackBar.open(msg, "Cerrar", {
+          duration: 3000,
+        });
       },
     });
+  }
+
+  trackByCourseId(index: number, course: Course): string {
+    return course.id;
   }
 }

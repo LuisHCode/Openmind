@@ -8,9 +8,13 @@ export interface Course {
   category: string;
   price: number;
   studentsCount: number;
+  cupo: number;
   imageUrl: string;
+  imagen_url?: string;
   createdAt: Date;
+  creador_id: string;
   isEnrolled?: boolean;
+  estudiantes?: User[];
 }
 
 export interface User {

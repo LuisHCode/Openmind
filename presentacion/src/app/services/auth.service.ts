@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { HttpClient } from "@angular/common/http";
 import { tap, map } from "rxjs/operators";
 import { environment } from "../environments/environment.development";
+import { TokenService } from "./token.service";
 
 export interface AuthUser {
   id: string;
@@ -22,10 +23,9 @@ export class AuthService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
-  constructor(private router: Router, private http: HttpClient) {
-    // Verificar si hay un usuario guardado en localStorage
+  constructor(private router: Router, private http: HttpClient, private tokenService: TokenService) {
     const savedUser = localStorage.getItem("currentUser");
-    const token = localStorage.getItem("token");
+    const token = this.tokenService.getToken();
     if (savedUser && token) {
       this.currentUserSubject.next(JSON.parse(savedUser));
       this.isLoggedInSubject.next(true);
@@ -38,8 +38,8 @@ export class AuthService {
       .pipe(
         tap((res) => {
           if (res.tk && res.tkref) {
-            localStorage.setItem("token", res.tk);
-            localStorage.setItem("refreshToken", res.tkref);
+            this.tokenService.setToken(res.tk);
+            this.tokenService.setRefreshToken(res.tkref);
             const user: AuthUser = {
               id: this.parseJwt(res.tk).sub,
               name: this.parseJwt(res.tk).nombre,
@@ -56,7 +56,7 @@ export class AuthService {
 
   refrescar(): Observable<boolean> {
     const user = this.getCurrentUser();
-    const tkref = localStorage.getItem("refreshToken");
+    const tkref = this.tokenService.getRefreshToken();
     if (!user || !tkref)
       return new Observable((observer) => {
         observer.next(false);
@@ -67,8 +67,8 @@ export class AuthService {
       .pipe(
         tap((res) => {
           if (res.tk && res.tkref) {
-            localStorage.setItem("token", res.tk);
-            localStorage.setItem("refreshToken", res.tkref);
+            this.tokenService.setToken(res.tk);
+            this.tokenService.setRefreshToken(res.tkref);
           }
         }),
         map((res) => !!res.tk)
@@ -85,8 +85,7 @@ export class AuthService {
     this.currentUserSubject.next(null);
     this.isLoggedInSubject.next(false);
     localStorage.removeItem("currentUser");
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
+    this.tokenService.clear();
     this.router.navigate(["/login"]);
   }
 
@@ -99,10 +98,9 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem("token");
+    return this.tokenService.getToken();
   }
 
-  // Decodifica el JWT para extraer datos del usuario
   private parseJwt(token: string): any {
     try {
       const base64Url = token.split(".")[1];
