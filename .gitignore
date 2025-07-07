@@ -1,3 +1,5 @@
 mysql/
 !mysql/*.sql
 !mysql/*.cnf
+
+node_modules/
