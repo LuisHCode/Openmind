@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter, RouterOutlet } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app/app.routes';
 
 @Component({
@@ -14,6 +15,7 @@ export class App {}
 bootstrapApplication(App, {
   providers: [
     provideRouter(routes),
-    provideAnimations()
+    provideAnimations(),
+    provideHttpClient() // <-- Agregado para HttpClient
   ]
 }).catch(err => console.error(err));

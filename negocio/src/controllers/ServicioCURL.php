@@ -5,12 +5,19 @@ class ServicioCURL
 {
     private const URL = "http://omweb_datos/api";
 
-    public function ejecutarCURL($endPoint, $metodo, $datos = null)
+    public function ejecutarCURL($endPoint, $metodo, $datos = null, $authHeader = null)
     {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, self::URL . $endPoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $headers = [];
+        if ($authHeader) {
+            $headers[] = 'Authorization: ' . $authHeader;
+        }
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         if ($datos !== null) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $datos);

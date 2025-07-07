@@ -35,6 +35,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   hidePassword = true;
   isLoading = false;
+  loginError: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -50,6 +51,7 @@ export class LoginComponent {
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.isLoading = true;
+      this.loginError = null;
       const { email, password } = this.loginForm.value;
 
       this.authService.login(email, password).subscribe({
@@ -61,6 +63,7 @@ export class LoginComponent {
         },
         error: () => {
           this.isLoading = false;
+          this.loginError = "Credenciales inválidas";
         },
       });
     }

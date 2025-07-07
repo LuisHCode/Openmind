@@ -1,13 +1,15 @@
 
 @uriCurso = http://localhost:9000/api/curso
+@token = Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMsImVtYWlsIjoibHVpc0BnbWFpbC5jb20iLCJub21icmUiOiJMdWlzIExvcGV6IiwiaWF0IjoxNzUxODU5OTcyLCJleHAiOjE3NTE4NjA1NzIsInJlZiI6dHJ1ZX0.yN7vEcm-WQQkxUy65GIhlubtX7DQYDYLplrJl70zAfo
 
 POST {{uriCurso}}
 Content-Type: application/json
+Authorization: {{token}}
 
 {
     "titulo": "Curso de creación de cursos",
     "descripcion": "Acá aprenderemos a crear cursos",
-    "creador_id": 2,
+    "creador_id": 3,
     "fecha_inicio": "2025-07-02",
     "semanas_duracion": 8,
     "categoria": "Backend",
@@ -17,7 +19,8 @@ Content-Type: application/json
 
 ###
 
-GET {{uriCurso}}/1
+GET {{uriCurso}}
+Authorization: {{token}}
 
 ###
 PUT {{uriCurso}}/2
@@ -37,3 +40,7 @@ Content-Type: application/json
 ###
 
 DELETE {{uriCurso}}/1
+
+###
+GET {{uriCurso}}
+Authorization: {{token}}

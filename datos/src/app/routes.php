@@ -24,6 +24,9 @@ $app->group('/api', function (RouteCollectorProxy $api) {
         $endpoint->put('/{idCurso}', Curso::class . ':update');
         $endpoint->get('/{idCurso}', Curso::class . ':read');
         $endpoint->delete('/{idCurso}', Curso::class . ':delete');
+        $endpoint->get('', Curso::class . ':getAll');
+        $endpoint->get('/matriculados/{idCurso}', Curso::class . ':getMatriculados');
+        $endpoint->get('/creador/{idCreador}', Curso::class . ':getByCreador');
     });
 
     $api->group('/matricula', function (RouteCollectorProxy $endpoint) {
@@ -36,6 +39,8 @@ $app->group('/api', function (RouteCollectorProxy $api) {
     $api->group('/auth', function (RouteCollectorProxy $endpoint) {
         $endpoint->patch('/login', Auth::class . ':login');
         $endpoint->patch('/refrescar', Auth::class . ':refrescar');
-        $endpoint->delete('/cerrar', Auth::class . ':cerrar');
+        $endpoint->patch('/cerrar', Auth::class . ':cerrar');
+        $endpoint->post('/signin', Auth::class . ':register');
+        $endpoint->post('/validate', Auth::class . ':validateToken');
     });
 });

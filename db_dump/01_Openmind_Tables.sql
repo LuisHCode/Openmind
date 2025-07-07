@@ -423,4 +423,32 @@ BEGIN
     RETURN cnt;
 END $$
 
+-- SP: Traer todos los cursos con datos del creador
+CREATE PROCEDURE sp_get_todos_cursos()
+BEGIN
+    SELECT c.id, c.titulo, c.descripcion, c.fecha_inicio, c.semanas_duracion, c.categoria, c.nivel, c.cupo,
+           u.id AS creador_id, u.nombre AS creador_nombre, u.email AS creador_email
+    FROM cursos c
+    JOIN usuarios u ON c.creador_id = u.id;
+END $$
+
+-- SP: Traer todos los matriculados a un curso (por id de curso)
+CREATE PROCEDURE sp_get_matriculados_curso(IN p_curso_id INT)
+BEGIN
+    SELECT u.id, u.nombre, u.email
+    FROM matriculas m
+    JOIN usuarios u ON m.usuario_id = u.id
+    WHERE m.curso_id = p_curso_id;
+END $$
+
+-- SP: Traer todos los cursos creados por un usuario (por id de creador)
+CREATE PROCEDURE sp_get_cursos_por_creador(IN p_creador_id INT)
+BEGIN
+    SELECT c.id, c.titulo, c.descripcion, c.fecha_inicio, c.semanas_duracion, c.categoria, c.nivel, c.cupo,
+           u.id AS creador_id, u.nombre AS creador_nombre, u.email AS creador_email
+    FROM cursos c
+    JOIN usuarios u ON c.creador_id = u.id
+    WHERE c.creador_id = p_creador_id;
+END $$
+
 DELIMITER ;

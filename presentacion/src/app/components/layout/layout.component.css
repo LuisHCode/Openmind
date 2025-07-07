@@ -1,4 +1,4 @@
-    .main-toolbar {
+.main-toolbar {
       background: white;
       color: var(--text-primary);
       position: sticky;
@@ -83,7 +83,14 @@
     }
 
     .user-button {
-      padding: 4px;
+      padding: 0;
+      margin: 0 8px;
+      border-radius: 50%;
+      overflow: visible;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
     }
 
     .user-avatar, .menu-avatar {
@@ -93,33 +100,52 @@
       object-fit: cover;
     }
 
+    .user-avatar-icon {
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
+      color: var(--primary-purple, #6B46C1);
+      background: #f3f4f6;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
+      display: block;
+    }
+
     .menu-avatar {
-      width: 48px;
-      height: 48px;
+      font-size: 56px;
+      width: 56px;
+      height: 56px;
+      color: var(--primary-purple, #6B46C1);
+      background: #f3f4f6;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
+      margin-right: 16px;
+      display: block;
     }
 
     .user-info {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 16px;
-      min-width: 250px;
+      padding: 12px 16px 8px 16px;
     }
 
     .user-details {
-      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .user-name {
       font-weight: 600;
+      font-size: 1.1rem;
       margin: 0;
       color: var(--text-primary);
     }
 
     .user-email {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin: 4px 0 0 0;
+      font-size: 0.95rem;
+      color: #6B7280;
+      margin: 0;
     }
 
     .main-content {

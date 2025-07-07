@@ -21,35 +21,43 @@ class Usuario extends ServicioCURL
         if (isset($args['idUsuario'])) {
             $url .= '/' . $args['idUsuario'];
         }
-
-        $respA = $this->ejecutarCURL($url, 'GET');
-
-        if ($respA['resp'] === false) {
-            $response->getBody()->write(json_encode(['error' => 'No se pudo conectar con la API.']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
-        }
-
-        $response->getBody()->write($respA['resp']);
-        return $response->withHeader('Content-Type', 'application/json')->withStatus($respA['status']);
+        $authHeader = $request->getHeaderLine('Authorization');
+        $respA = $this->ejecutarCURL($url, 'GET', null, $authHeader);
+        $status = $respA['status'];
+        $json = json_decode($respA['resp'], true);
+        $response->getBody()->write(json_encode($json));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 
     public function create(Request $request, Response $response, $args)
     {
         $body = $request->getBody();
-        $respA = $this->ejecutarCURL($this::ENDPOINT, 'POST', $body);
-        return $response->withStatus($respA['status']);
+        $authHeader = $request->getHeaderLine('Authorization');
+        $respA = $this->ejecutarCURL($this::ENDPOINT, 'POST', $body, $authHeader);
+        $status = $respA['status'];
+        $json = json_decode($respA['resp'], true);
+        $response->getBody()->write(json_encode($json));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 
     public function update(Request $request, Response $response, $args)
     {
         $body = $request->getBody();
-        $respA = $this->ejecutarCURL($this::ENDPOINT . '/' . $args['idUsuario'], 'PUT', $body);
-        return $response->withStatus($respA['status']);
+        $authHeader = $request->getHeaderLine('Authorization');
+        $respA = $this->ejecutarCURL($this::ENDPOINT . '/' . $args['idUsuario'], 'PUT', $body, $authHeader);
+        $status = $respA['status'];
+        $json = json_decode($respA['resp'], true);
+        $response->getBody()->write(json_encode($json));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 
     public function delete(Request $request, Response $response, $args)
     {
-        $respA = $this->ejecutarCURL($this::ENDPOINT . '/' . $args['idUsuario'], 'DELETE');
-        return $response->withStatus($respA['status']);
+        $authHeader = $request->getHeaderLine('Authorization');
+        $respA = $this->ejecutarCURL($this::ENDPOINT . '/' . $args['idUsuario'], 'DELETE', null, $authHeader);
+        $status = $respA['status'];
+        $json = json_decode($respA['resp'], true);
+        $response->getBody()->write(json_encode($json));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 }

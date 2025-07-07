@@ -15,6 +15,7 @@ import { MatSnackBarModule, MatSnackBar } from "@angular/material/snack-bar";
 import { CourseService } from "../../services/course.service";
 import { Course, CourseStats } from "../../models/course.model";
 import { Observable, combineLatest, map, startWith } from "rxjs";
+import { AuthService } from "../../services/auth.service";
 
 @Component({
   selector: "app-dashboard",
@@ -51,7 +52,8 @@ export class DashboardComponent implements OnInit {
   constructor(
     private courseService: CourseService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    public authService: AuthService
   ) {
     this.courses$ = this.courseService.getAllCourses();
     this.stats$ = this.courseService.getStats();

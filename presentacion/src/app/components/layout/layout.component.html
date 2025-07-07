@@ -48,12 +48,12 @@
         mat-icon-button
         [matMenuTriggerFor]="userMenu"
         class="user-button">
-        <img [src]="user.avatar" [alt]="user.name" class="user-avatar" />
+        <mat-icon class="user-avatar-icon" color="primary">account_circle</mat-icon>
       </button>
 
       <mat-menu #userMenu="matMenu" class="user-menu">
         <div class="user-info">
-          <img [src]="user.avatar" [alt]="user.name" class="menu-avatar" />
+          <mat-icon class="menu-avatar" color="primary">account_circle</mat-icon>
           <div class="user-details">
             <p class="user-name">{{ user.name }}</p>
             <p class="user-email">{{ user.email }}</p>

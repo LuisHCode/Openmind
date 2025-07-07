@@ -138,6 +138,36 @@ class Curso
         return $this->respondWithJson($response, ['error' => 'Error desconocido'], 500);
     }
 
+    public function getAll(Request $request, Response $response, $args)
+    {
+        $sql = "CALL sp_get_todos_cursos()";
+        $pdo = $this->container->get('OMbase_datos');
+        $stmt = $pdo->query($sql);
+        $cursos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->respondWithJson($response, $cursos, 200);
+    }
+
+    public function getMatriculados(Request $request, Response $response, $args)
+    {
+        $idCurso = $args['idCurso'];
+        $sql = "CALL sp_get_matriculados_curso(:idCurso)";
+        $pdo = $this->container->get('OMbase_datos');
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['idCurso' => $idCurso]);
+        $matriculados = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->respondWithJson($response, $matriculados, 200);
+    }
+
+    public function getByCreador(Request $request, Response $response, $args)
+    {
+        $idCreador = $args['idCreador'];
+        $sql = "CALL sp_get_cursos_por_creador(:idCreador)";
+        $pdo = $this->container->get('OMbase_datos');
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['idCreador' => $idCreador]);
+        $cursos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->respondWithJson($response, $cursos, 200);
+    }
 
     private function respondWithJson(Response $response, array $data, int $status = 200): Response
     {

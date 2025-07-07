@@ -62,6 +62,9 @@
             <span *ngIf="!isLoading">Iniciar Sesión</span>
           </button>
         </form>
+        <div *ngIf="loginError" class="text-red-600 text-center mt-2">
+          {{ loginError }}
+        </div>
       </mat-card-content>
 
       <mat-card-actions>

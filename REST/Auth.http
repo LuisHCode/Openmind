@@ -5,6 +5,44 @@ PATCH {{uriAuth}}/login
 Content-Type: application/json
 
 {
-  "email": "camii@gmail.com",
+  "email": "luis@gmail.com",
   "password": "1234"
 }
+
+
+###
+PATCH  {{uriAuth}}/cerrar
+Content-Type: 
+
+{
+  "email": "camii@gmail.com"
+}
+
+
+###
+PATCH {{uriAuth}}/refrescar
+Content-Type: 
+
+ {
+  "email" : "camii@gmail.com",
+  "tkref" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImVtYWlsIjoiY2FtaWlAZ21haWwuY29tIiwibm9tYnJlIjoiQ2FtaWxhIExvcmlhIiwiaWF0IjoxNzUxODQ2MTY4LCJleHAiOjE3NTE4NDY3NjgsInJlZiI6dHJ1ZX0.Y8DjzF3M__4gCC3CjSHy5pY2SmkIxrZcRyZJ6nk4O9E"
+ }
+
+###
+POST {{uriAuth}}/signin
+Content-Type: application/json
+
+{
+  "nombre": "Luis Lopez",
+  "email": "luis@gmail.com",
+  "password": "1234"
+}
+
+
+###
+POST {{uriAuth}}/validate
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMsImVtYWlsIjoibHVpc0BnbWFpbC5jb20iLCJub21icmUiOiJMdWlzIExvcGV6IiwiaWF0IjoxNzUxODU5MzE3LCJleHAiOjE3NTE4NTk5MTcsInJlZiI6dHJ1ZX0.Wig3y5DDxltdUl-yU4BBPeXYqJw2EodCgtNgcNFnKSQ
+
+###
+POST http://localhost:8000/api/auth/validate
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMsImVtYWlsIjoibHVpc0BnbWFpbC5jb20iLCJub21icmUiOiJMdWlzIExvcGV6IiwiaWF0IjoxNzUxODU5MzE3LCJleHAiOjE3NTE4NTk5MTcsInJlZiI6dHJ1ZX0.Wig3y5DDxltdUl-yU4BBPeXYqJw2EodCgtNgcNFnKSQ

@@ -4,6 +4,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 use Slim\Routing\RouteCollectorProxy;
+use App\middleware\JwtMiddleware;
 
 $app->get('/', function (Request $request, Response $response, $args) {
     $response->getBody()->write("Bienvenido a la capa negocio");
@@ -24,6 +25,9 @@ $app->group('/api', function (RouteCollectorProxy $api) {
         $endpoint->put('/{idCurso}', Curso::class . ':update');
         $endpoint->get('/{idCurso}', Curso::class . ':read');
         $endpoint->delete('/{idCurso}', Curso::class . ':delete');
+        $endpoint->get('', Curso::class . ':getAll');
+        $endpoint->get('/matriculados/{idCurso}', Curso::class . ':getMatriculados');
+        $endpoint->get('/creador/{idCreador}', Curso::class . ':getByCreador');
     });
 
     $api->group('/matricula', function (RouteCollectorProxy $endpoint) {
@@ -31,6 +35,13 @@ $app->group('/api', function (RouteCollectorProxy $api) {
         $endpoint->put('/{idMatricula}', Matricula::class . ':update');
         $endpoint->get('', Matricula::class . ':filtrar');
         $endpoint->delete('/{idMatricula}', Matricula::class . ':delete');
+    });
+
+    $api->group('/auth', function (RouteCollectorProxy $endpoint) {
+        $endpoint->patch('/login', Auth::class . ':login');
+        $endpoint->patch('/refrescar', Auth::class . ':refrescar');
+        $endpoint->patch('/cerrar', Auth::class . ':cerrar');
+        $endpoint->post('/register', Auth::class . ':register');
     });
 });
 

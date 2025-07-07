@@ -35,7 +35,7 @@ class Auth
                 'email' => $user['email'],
                 'nombre' => $user['nombre'],
                 'iat' => time(),
-                'exp' => time() + 60*60*24 // 24 horas
+                'exp' => time() + 600
             ];
             $tk = JWT::encode($payload, $this->secret, 'HS256');
             $tkref = JWT::encode(array_merge($payload, ['ref' => true]), $this->secret, 'HS256');
@@ -66,6 +66,7 @@ class Auth
             'tkref' => $tkref
         ]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->closeCursor(); // Cierra el cursor antes de ejecutar otra consulta
         if ($row && isset($row['id'])) {
             $decoded = JWT::decode($tkref, new Key($this->secret, 'HS256'));
             $payload = [
@@ -73,7 +74,7 @@ class Auth
                 'email' => $decoded->email,
                 'nombre' => $decoded->nombre,
                 'iat' => time(),
-                'exp' => time() + 60*60*24 // 24 horas
+                'exp' => time() + 600 
             ];
             $tk = JWT::encode($payload, $this->secret, 'HS256');
             $tkref_new = JWT::encode(array_merge($payload, ['ref' => true]), $this->secret, 'HS256');
@@ -101,6 +102,65 @@ class Auth
             'email' => $email
         ]);
         return $this->respondWithJson($response, ['mensaje' => 'Sesión cerrada'], 200);
+    }
+
+    public function register(Request $request, Response $response, $args)
+    {
+        $data = json_decode($request->getBody(), true);
+        $nombre = $data['nombre'] ?? '';
+        $email = $data['email'] ?? '';
+        $password = $data['password'] ?? '';
+        if (!$nombre || !$email || !$password) {
+            return $this->respondWithJson($response, ['error' => 'Faltan datos obligatorios'], 400);
+        }
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $pdo = $this->container->get('OMbase_datos');
+        $stmt = $pdo->prepare('SELECT fn_create_usuario(:nombre, :email, :password) AS existe');
+        $stmt->execute([
+            'nombre' => $nombre,
+            'email' => $email,
+            'password' => $hashedPassword
+        ]);
+        $existe = $stmt->fetchColumn();
+        if ($existe == 0) {
+            return $this->respondWithJson($response, ['mensaje' => 'Usuario registrado correctamente'], 201);
+        } else {
+            return $this->respondWithJson($response, ['error' => 'El email ya está registrado'], 409);
+        }
+    }
+
+    public function validateToken(Request $request, Response $response, $args)
+    {
+        $authHeader = $request->getHeaderLine('Authorization');
+        if (!$authHeader || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            return $this->respondWithJson($response, [
+                'valido' => false,
+                'error' => 'No se encontró el token en el header'
+            ], 401);
+        }
+        $jwt = $matches[1];
+        try {
+            $decoded = JWT::decode($jwt, new Key($this->secret, 'HS256'));
+            $pdo = $this->container->get('OMbase_datos');
+            $stmt = $pdo->prepare('SELECT tkref FROM usuarios WHERE id = :id OR email = :email');
+            $stmt->execute(['id' => $decoded->sub ?? null, 'email' => $decoded->email ?? null]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $tkref_db = $row['tkref'] ?? null;
+            if (!$tkref_db || $jwt !== $tkref_db) {
+                return $this->respondWithJson($response, [
+                    'valido' => false,
+                    'error' => 'Token no activo o no coincide (solo tkref válido)'
+                ], 401);
+            }
+            return $this->respondWithJson($response, [
+                'valido' => true
+            ]);
+        } catch (\Exception $e) {
+            return $this->respondWithJson($response, [
+                'valido' => false,
+                'error' => $e->getMessage()
+            ], 401);
+        }
     }
 
     private function respondWithJson(Response $response, array $data, int $status = 200): Response
